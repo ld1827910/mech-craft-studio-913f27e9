@@ -1,0 +1,95 @@
+
+import React, { useState } from 'react';
+import ThreeScene from './ThreeScene';
+import ConfigPanel from './ConfigPanel';
+import { useMockGraphQL, PartParameter, Material } from '@/hooks/useMockGraphQL';
+
+const Configurator: React.FC = () => {
+  const { loading, error, data } = useMockGraphQL();
+  const [parameters, setParameters] = useState<PartParameter[]>([]);
+  const [materials, setMaterials] = useState<Material[]>([]);
+  const [selectedMaterial, setSelectedMaterial] = useState<Material>({ 
+    id: 'steel', 
+    name: 'Steel', 
+    color: '#A5A5A5' 
+  });
+
+  // Initialize parameters and materials from GraphQL data
+  React.useEffect(() => {
+    if (data) {
+      setParameters(data.parameters);
+      setMaterials(data.materials);
+      setSelectedMaterial(data.materials[0]);
+    }
+  }, [data]);
+
+  // Handle parameter changes
+  const handleParameterChange = (id: string, value: number) => {
+    setParameters(prev => 
+      prev.map(param => 
+        param.id === id ? { ...param, value } : param
+      )
+    );
+  };
+
+  // Handle material changes
+  const handleMaterialChange = (material: Material) => {
+    setSelectedMaterial(material);
+  };
+
+  // Show error message if GraphQL query failed
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64 text-red-600">
+        <p>Error loading configurator data. Please try again later.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="w-full md:w-2/3 h-[500px] md:h-[600px]">
+          <ThreeScene 
+            parameters={parameters} 
+            material={selectedMaterial}
+            isLoading={loading} 
+          />
+        </div>
+        <div className="w-full md:w-1/3">
+          <ConfigPanel
+            parameters={parameters}
+            materials={materials}
+            selectedMaterial={selectedMaterial}
+            onParameterChange={handleParameterChange}
+            onMaterialChange={handleMaterialChange}
+            isLoading={loading}
+          />
+        </div>
+      </div>
+      
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold mb-4">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">1</div>
+            <h3 className="text-lg font-semibold mb-2">Customize Parameters</h3>
+            <p className="text-gray-600">Adjust dimensions and specifications to match your exact requirements.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">2</div>
+            <h3 className="text-lg font-semibold mb-2">Choose Materials</h3>
+            <p className="text-gray-600">Select from various materials with different properties and appearances.</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">3</div>
+            <h3 className="text-lg font-semibold mb-2">Export Design</h3>
+            <p className="text-gray-600">Save your configuration or request a quote for manufacturing.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Configurator;
