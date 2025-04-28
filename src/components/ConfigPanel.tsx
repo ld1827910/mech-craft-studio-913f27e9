@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { PartParameter, Material } from '@/hooks/useMockGraphQL';
 
 interface ConfigPanelProps {
@@ -13,6 +14,8 @@ interface ConfigPanelProps {
   onParameterChange: (id: string, value: number) => void;
   onMaterialChange: (material: Material) => void;
   isLoading?: boolean;
+  autoRotate?: boolean;
+  onAutoRotateChange?: (enabled: boolean) => void;
 }
 
 const ConfigPanel: React.FC<ConfigPanelProps> = ({
@@ -23,6 +26,8 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   onParameterChange,
   onMaterialChange,
   isLoading = false,
+  autoRotate = false,
+  onAutoRotateChange,
 }) => {
   const getPartParameters = () => {
     switch(selectedPart) {
@@ -61,6 +66,19 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         ) : (
           <>
             <div className="space-y-6">
+              {selectedPart === 'gear' && (
+                <div className="flex items-center justify-between py-2 border-b">
+                  <Label htmlFor="auto-rotate" className="text-sm font-medium">
+                    Auto Rotation
+                  </Label>
+                  <Switch
+                    id="auto-rotate"
+                    checked={autoRotate}
+                    onCheckedChange={onAutoRotateChange}
+                  />
+                </div>
+              )}
+
               <div>
                 <h3 className="text-lg font-medium mb-4">Dimensions</h3>
                 {getPartParameters().map((param) => (

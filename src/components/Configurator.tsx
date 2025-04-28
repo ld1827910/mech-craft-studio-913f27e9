@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
@@ -17,8 +16,8 @@ const Configurator: React.FC = () => {
     color: '#A5A5A5' 
   });
   const [selectedPart, setSelectedPart] = useState('gear');
+  const [autoRotate, setAutoRotate] = useState(true);
 
-  // Initialize parameters and materials from GraphQL data
   React.useEffect(() => {
     if (data) {
       setParameters(data.parameters);
@@ -82,7 +81,8 @@ const Configurator: React.FC = () => {
             parameters={parameters} 
             material={selectedMaterial}
             selectedPart={selectedPart}
-            isLoading={loading} 
+            isLoading={loading}
+            autoRotate={autoRotate} 
           />
         </div>
         <div className="w-full md:w-1/3">
@@ -94,6 +94,8 @@ const Configurator: React.FC = () => {
             onMaterialChange={handleMaterialChange}
             selectedPart={selectedPart}
             isLoading={loading}
+            autoRotate={autoRotate}
+            onAutoRotateChange={setAutoRotate}
           />
         </div>
       </div>

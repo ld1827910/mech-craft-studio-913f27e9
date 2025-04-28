@@ -33,14 +33,16 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     // Create basic gear shape with teeth
     const shape = new THREE.Shape();
     const outerRadius = radius;
-    const innerRadius = hole;
+    const innerRadius = Math.max(0.1, hole); // Ensure minimum hole size
     const teethHeight = radius * 0.2;
     
+    // Create center hole first
+    const holePath = new THREE.Path();
+    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+    
     if (teeth <= 0) {
-      // If no teeth, just create a disc
+      // If no teeth, just create a disc with center hole
       shape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
-      const holePath = new THREE.Path();
-      holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
       shape.holes.push(holePath);
     } else {
       // Create gear with teeth
@@ -55,21 +57,28 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
         // Start at inner point before tooth
         if (i === 0) {
           shape.moveTo(
-            (outerRadius) * Math.cos(startAngle),
-            (outerRadius) * Math.sin(startAngle)
+            outerRadius * Math.cos(startAngle),
+            outerRadius * Math.sin(startAngle)
           );
         }
         
-        // Draw tooth outer edge
-        shape.lineTo(
+        // Draw tooth outer edge with smooth curve
+        shape.bezierCurveTo(
+          outerRadius * Math.cos(startAngle),
+          outerRadius * Math.sin(startAngle),
+          (outerRadius + teethHeight) * Math.cos(midAngle - toothWidth / (4 * radius)),
+          (outerRadius + teethHeight) * Math.sin(midAngle - toothWidth / (4 * radius)),
           (outerRadius + teethHeight) * Math.cos(midAngle),
           (outerRadius + teethHeight) * Math.sin(midAngle)
         );
         
-        // End of tooth
-        shape.lineTo(
-          (outerRadius) * Math.cos(endAngle),
-          (outerRadius) * Math.sin(endAngle)
+        shape.bezierCurveTo(
+          (outerRadius + teethHeight) * Math.cos(midAngle),
+          (outerRadius + teethHeight) * Math.sin(midAngle),
+          (outerRadius + teethHeight) * Math.cos(midAngle + toothWidth / (4 * radius)),
+          (outerRadius + teethHeight) * Math.sin(midAngle + toothWidth / (4 * radius)),
+          outerRadius * Math.cos(endAngle),
+          outerRadius * Math.sin(endAngle)
         );
         
         // Arc to next tooth start
@@ -87,7 +96,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
             0, 0,
             outerRadius,
             endAngle,
-            startAngle + 0.0001, // Add tiny offset to avoid zero length path
+            startAngle + 0.0001,
             false
           );
         }
@@ -95,11 +104,9 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     }
     
     // Add center hole
-    const holePath = new THREE.Path();
-    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
     shape.holes.push(holePath);
     
-    // Extrude the 2D gear shape to create a 3D model
+    // Extrude settings for smooth transitions
     const extrudeSettings = {
       steps: 2,
       depth: thickness,
@@ -107,7 +114,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       bevelThickness: thickness * 0.1,
       bevelSize: thickness * 0.05,
       bevelOffset: 0,
-      bevelSegments: 3,
+      bevelSegments: 5,
     };
     
     const gearBaseGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -121,9 +128,11 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     return gearBaseGeometry;
   }, [parameters]); // Regenerate when any parameter changes
 
+  // Smooth rotation animation
   useFrame((_, delta) => {
     if (autoRotate && meshRef.current) {
-      meshRef.current.rotation.z += delta * 0.2;
+      // Slower, smoother rotation
+      meshRef.current.rotation.z += delta * 0.5;
     }
   });
 
@@ -137,8 +146,8 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     >
       <meshStandardMaterial 
         color={materialColor} 
-        metalness={0.7} 
-        roughness={0.3}
+        metalness={0.8}
+        roughness={0.2}
         side={THREE.DoubleSide}
       />
     </mesh>
