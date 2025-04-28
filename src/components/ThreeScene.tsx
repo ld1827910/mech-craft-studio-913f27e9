@@ -1,7 +1,7 @@
 
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Grid, PerspectiveCamera } from '@react-three/fiber';
+import { OrbitControls, Environment, Grid, PerspectiveCamera } from '@react-three/drei';
 import GearModel from './GearModel';
 import { PartParameter, Material } from '@/hooks/useMockGraphQL';
 

@@ -2,8 +2,8 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-// Import BufferGeometryUtils from THREE instead of three-stdlib
-import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+// Import BufferGeometryUtils from three/examples/jsm/utils
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface GearModelProps {
   parameters: {
@@ -100,9 +100,9 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
         geometriesToMerge.push(toothGeometry);
       }
       
-      // All extruded geometries are already buffer geometries in three.js r128+
-      // Use the correct method from BufferGeometryUtils
-      const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometriesToMerge);
+      // All extruded geometries are buffer geometries in three.js r128+
+      // Use the mergeGeometries function imported from BufferGeometryUtils
+      const mergedGeometry = mergeGeometries(geometriesToMerge);
       
       // Center the geometry
       mergedGeometry.center();
