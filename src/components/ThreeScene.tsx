@@ -2,7 +2,11 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Grid, PerspectiveCamera } from '@react-three/drei';
-import GearModel from './GearModel';
+import GearModel from './parts/GearModel';
+import PipeModel from './parts/PipeModel';
+import SpringModel from './parts/SpringModel';
+import BoltModel from './parts/BoltModel';
+import NutModel from './parts/NutModel';
 import { PartParameter, Material } from '@/hooks/useMockGraphQL';
 
 interface ThreeSceneProps {
@@ -12,13 +16,8 @@ interface ThreeSceneProps {
 }
 
 const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading = false }) => {
-  // Transform parameters array to object structure needed by GearModel
-  const gearParams = {
-    teeth: parameters.find(p => p.id === 'teeth')?.value || 20,
-    radius: parameters.find(p => p.id === 'radius')?.value || 5,
-    thickness: parameters.find(p => p.id === 'thickness')?.value || 1,
-    hole: parameters.find(p => p.id === 'hole')?.value || 1,
-  };
+  const getParameterValue = (id: string, defaultValue: number) => 
+    parameters.find(p => p.id === id)?.value || defaultValue;
 
   return (
     <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden shadow-inner">
@@ -38,14 +37,59 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading
               position={[10, 10, 10]} 
               intensity={1} 
               castShadow 
-              shadow-mapSize-width={1024} 
-              shadow-mapSize-height={1024}
             />
-            <GearModel 
-              parameters={gearParams}
-              material={material.id}
-              autoRotate={true}
-            />
+            
+            {/* Display different parts based on selected part type */}
+            <group position={[0, 0, 0]}>
+              <GearModel 
+                parameters={{
+                  teeth: getParameterValue('teeth', 20),
+                  radius: getParameterValue('radius', 5),
+                  thickness: getParameterValue('thickness', 1),
+                  hole: getParameterValue('hole', 1),
+                }}
+                material={material.id}
+                autoRotate={true}
+              />
+              
+              <PipeModel
+                parameters={{
+                  length: 5,
+                  radius: 1,
+                  thickness: 0.2,
+                }}
+                material={material.id}
+              />
+              
+              <SpringModel
+                parameters={{
+                  radius: 1,
+                  thickness: 0.1,
+                  coils: 5,
+                  height: 5,
+                }}
+                material={material.id}
+              />
+              
+              <BoltModel
+                parameters={{
+                  headRadius: 0.8,
+                  shaftRadius: 0.4,
+                  length: 3,
+                }}
+                material={material.id}
+              />
+              
+              <NutModel
+                parameters={{
+                  radius: 0.8,
+                  height: 0.6,
+                  holeRadius: 0.4,
+                }}
+                material={material.id}
+              />
+            </group>
+
             <Grid 
               args={[50, 50]} 
               cellSize={1}
@@ -57,7 +101,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading
               fadeDistance={50}
               fadeStrength={1}
               infiniteGrid={true}
-              position={[0, -gearParams.thickness/2 - 0.01, 0]}
+              position={[0, -5, 0]}
             />
           </Suspense>
           <OrbitControls 
