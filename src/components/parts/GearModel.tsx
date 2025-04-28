@@ -30,53 +30,96 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
   const gearGeometry = useMemo(() => {
     const { teeth, radius, thickness, hole } = parameters;
     
-    // Base gear shape (this will be a cylinder for the main gear body)
-    const baseGeometry = new THREE.CylinderGeometry(radius, radius, thickness, 32);
+    // Create basic gear shape with teeth
+    const shape = new THREE.Shape();
+    const outerRadius = radius;
+    const innerRadius = hole;
+    const teethHeight = radius * 0.2;
     
-    // Create hole in the middle
-    const holeGeometry = new THREE.CylinderGeometry(hole, hole, thickness * 1.2, 32);
-    const baseGear = new THREE.Mesh(baseGeometry);
-    const holeGear = new THREE.Mesh(holeGeometry);
-    
-    // Create a BSP tree for subtraction
-    const mainGear = baseGear;
-    
-    // Create gear teeth if teeth count is greater than 0
-    if (teeth > 0) {
-      const toothWidth = (2 * Math.PI * radius) / (teeth * 3); // Width of each tooth
-      const toothHeight = radius * 0.2; // Height of the tooth
-      const toothDepth = thickness; // Same as gear thickness
+    if (teeth <= 0) {
+      // If no teeth, just create a disc
+      shape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
+      const holePath = new THREE.Path();
+      holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+      shape.holes.push(holePath);
+    } else {
+      // Create gear with teeth
+      const angleStep = (Math.PI * 2) / teeth;
+      const toothWidth = (Math.PI * 2 * radius) / (teeth * 4); // Width for each tooth
       
-      // Create a group to hold all teeth
-      const teethGroup = new THREE.Group();
-      
-      // Create each tooth and add it to the group
       for (let i = 0; i < teeth; i++) {
-        const angle = (i / teeth) * Math.PI * 2;
+        const startAngle = i * angleStep - toothWidth / (2 * radius);
+        const midAngle = i * angleStep;
+        const endAngle = i * angleStep + toothWidth / (2 * radius);
         
-        // Create tooth geometry
-        const toothGeometry = new THREE.BoxGeometry(
-          toothWidth,
-          toothHeight,
-          toothDepth
+        // Start at inner point before tooth
+        if (i === 0) {
+          shape.moveTo(
+            (outerRadius) * Math.cos(startAngle),
+            (outerRadius) * Math.sin(startAngle)
+          );
+        }
+        
+        // Draw tooth outer edge
+        shape.lineTo(
+          (outerRadius + teethHeight) * Math.cos(midAngle),
+          (outerRadius + teethHeight) * Math.sin(midAngle)
         );
         
-        // Position the tooth at the edge of the gear
-        const tooth = new THREE.Mesh(toothGeometry);
-        tooth.position.x = (radius + toothHeight / 2) * Math.cos(angle);
-        tooth.position.y = (radius + toothHeight / 2) * Math.sin(angle);
+        // End of tooth
+        shape.lineTo(
+          (outerRadius) * Math.cos(endAngle),
+          (outerRadius) * Math.sin(endAngle)
+        );
         
-        // Rotate the tooth to point outward
-        tooth.rotation.z = angle;
-        
-        teethGroup.add(tooth);
+        // Arc to next tooth start
+        if (i < teeth - 1) {
+          shape.absarc(
+            0, 0,
+            outerRadius,
+            endAngle,
+            startAngle + angleStep,
+            false
+          );
+        } else {
+          // Close the shape by connecting back to the first point
+          shape.absarc(
+            0, 0,
+            outerRadius,
+            endAngle,
+            startAngle + 0.0001, // Add tiny offset to avoid zero length path
+            false
+          );
+        }
       }
-      
-      return { baseGeometry, teethGeometry: teethGroup };
     }
     
-    return { baseGeometry };
-  }, [parameters]);
+    // Add center hole
+    const holePath = new THREE.Path();
+    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+    shape.holes.push(holePath);
+    
+    // Extrude the 2D gear shape to create a 3D model
+    const extrudeSettings = {
+      steps: 2,
+      depth: thickness,
+      bevelEnabled: true,
+      bevelThickness: thickness * 0.1,
+      bevelSize: thickness * 0.05,
+      bevelOffset: 0,
+      bevelSegments: 3,
+    };
+    
+    const gearBaseGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+    // Center the geometry on its axis
+    gearBaseGeometry.center();
+    
+    // Rotate to correct orientation
+    gearBaseGeometry.rotateX(Math.PI / 2);
+    
+    return gearBaseGeometry;
+  }, [parameters]); // Regenerate when any parameter changes
 
   useFrame((_, delta) => {
     if (autoRotate && meshRef.current) {
@@ -85,36 +128,19 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
   });
 
   return (
-    <group>
-      <mesh ref={meshRef} geometry={gearGeometry.baseGeometry} position={[0, 0, 0]}>
-        <meshStandardMaterial 
-          color={materialColor} 
-          metalness={0.7} 
-          roughness={0.3}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      
-      {/* Create a hole in the center */}
-      <mesh position={[0, 0, 0]}>
-        <cylinderGeometry args={[parameters.hole, parameters.hole, parameters.thickness * 1.2, 32]} />
-        <meshStandardMaterial color={materialColor} metalness={0.7} roughness={0.3} side={THREE.DoubleSide} transparent opacity={0} />
-      </mesh>
-      
-      {/* Render gear teeth */}
-      {gearGeometry.teethGeometry && 
-        <primitive 
-          object={gearGeometry.teethGeometry} 
-          position={[0, 0, 0]}
-        >
-          <meshStandardMaterial 
-            color={materialColor} 
-            metalness={0.7} 
-            roughness={0.3}
-            side={THREE.DoubleSide}
-          />
-        </primitive>
-      }
-    </group>
+    <mesh 
+      ref={meshRef} 
+      geometry={gearGeometry} 
+      position={[0, 0, 0]}
+      castShadow
+      receiveShadow
+    >
+      <meshStandardMaterial 
+        color={materialColor} 
+        metalness={0.7} 
+        roughness={0.3}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   );
 }
