@@ -1,8 +1,8 @@
 
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Text, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+import { BufferGeometryUtils } from 'three-stdlib';
 
 interface GearModelProps {
   parameters: {
@@ -54,7 +54,8 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     };
     
     // Create extruded geometry
-    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const baseGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    let geometriesToMerge = [baseGeometry];
     
     // Add teeth
     if (teeth > 0) {
@@ -95,14 +96,32 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
         };
         
         const toothGeometry = new THREE.ExtrudeGeometry(toothShape, toothExtrudeSettings);
-        geometry.merge(toothGeometry);
+        geometriesToMerge.push(toothGeometry);
       }
+      
+      // Convert ExtrudeGeometry to BufferGeometry for merging
+      const bufferGeometries = geometriesToMerge.map(geo => {
+        if (!(geo instanceof THREE.BufferGeometry)) {
+          return geo.toBufferGeometry ? geo.toBufferGeometry() : geo;
+        }
+        return geo;
+      });
+      
+      // Create merged geometry
+      const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(bufferGeometries);
+      
+      // Center the geometry
+      mergedGeometry.center();
+      
+      // Clean up the geometries to prevent memory leaks
+      geometriesToMerge.forEach(geo => geo.dispose());
+      
+      return mergedGeometry;
     }
     
-    // Center the geometry
-    geometry.center();
-    
-    return geometry;
+    // Center the geometry if we didn't create teeth
+    baseGeometry.center();
+    return baseGeometry;
   }, [parameters]);
   
   // Setup material
