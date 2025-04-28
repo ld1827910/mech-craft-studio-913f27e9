@@ -101,8 +101,8 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       }
       
       // All extruded geometries are already buffer geometries in three.js r128+
-      // So we can directly merge them without conversion
-      const mergedGeometry = BufferGeometryUtils.mergeBufferGeometries(geometriesToMerge);
+      // Use the correct method from BufferGeometryUtils
+      const mergedGeometry = BufferGeometryUtils.mergeGeometries(geometriesToMerge);
       
       // Center the geometry
       mergedGeometry.center();
