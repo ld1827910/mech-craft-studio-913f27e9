@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
 import { useMockGraphQL, PartParameter, Material } from '@/hooks/useMockGraphQL';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Label } from './ui/label';
+import { Gear, Pipe, Spring, Bolt, Nut } from 'lucide-react';
 
 const Configurator: React.FC = () => {
   const { loading, error, data } = useMockGraphQL();
@@ -13,6 +16,7 @@ const Configurator: React.FC = () => {
     name: 'Steel', 
     color: '#A5A5A5' 
   });
+  const [selectedPart, setSelectedPart] = useState('gear');
 
   // Initialize parameters and materials from GraphQL data
   React.useEffect(() => {
@@ -23,7 +27,6 @@ const Configurator: React.FC = () => {
     }
   }, [data]);
 
-  // Handle parameter changes
   const handleParameterChange = (id: string, value: number) => {
     setParameters(prev => 
       prev.map(param => 
@@ -32,12 +35,10 @@ const Configurator: React.FC = () => {
     );
   };
 
-  // Handle material changes
   const handleMaterialChange = (material: Material) => {
     setSelectedMaterial(material);
   };
 
-  // Show error message if GraphQL query failed
   if (error) {
     return (
       <div className="flex items-center justify-center h-64 text-red-600">
@@ -46,13 +47,41 @@ const Configurator: React.FC = () => {
     );
   }
 
+  const partOptions = [
+    { id: 'gear', name: 'Gear', icon: Gear },
+    { id: 'pipe', name: 'Pipe', icon: Pipe },
+    { id: 'spring', name: 'Spring', icon: Spring },
+    { id: 'bolt', name: 'Bolt', icon: Bolt },
+    { id: 'nut', name: 'Nut', icon: Nut },
+  ];
+
   return (
     <div className="container mx-auto py-6 px-4 md:px-6">
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Select Part Type</h2>
+        <RadioGroup
+          value={selectedPart}
+          onValueChange={setSelectedPart}
+          className="grid grid-cols-2 md:grid-cols-5 gap-4"
+        >
+          {partOptions.map((part) => (
+            <div key={part.id} className="flex items-center space-x-2">
+              <RadioGroupItem value={part.id} id={part.id} />
+              <Label htmlFor={part.id} className="flex items-center gap-2 cursor-pointer">
+                <part.icon className="w-5 h-5" />
+                {part.name}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </div>
+
       <div className="flex flex-col md:flex-row gap-6">
         <div className="w-full md:w-2/3 h-[500px] md:h-[600px]">
           <ThreeScene 
             parameters={parameters} 
             material={selectedMaterial}
+            selectedPart={selectedPart}
             isLoading={loading} 
           />
         </div>
@@ -63,6 +92,7 @@ const Configurator: React.FC = () => {
             selectedMaterial={selectedMaterial}
             onParameterChange={handleParameterChange}
             onMaterialChange={handleMaterialChange}
+            selectedPart={selectedPart}
             isLoading={loading}
           />
         </div>

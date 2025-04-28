@@ -1,7 +1,7 @@
 
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Environment, Grid, PerspectiveCamera } from '@react-three/drei';
+import { OrbitControls, Environment, Grid } from '@react-three/drei';
 import GearModel from './parts/GearModel';
 import PipeModel from './parts/PipeModel';
 import SpringModel from './parts/SpringModel';
@@ -12,12 +12,83 @@ import { PartParameter, Material } from '@/hooks/useMockGraphQL';
 interface ThreeSceneProps {
   parameters: PartParameter[];
   material: Material;
+  selectedPart: string;
   isLoading?: boolean;
 }
 
-const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading = false }) => {
+const ThreeScene: React.FC<ThreeSceneProps> = ({ 
+  parameters, 
+  material, 
+  selectedPart,
+  isLoading = false 
+}) => {
   const getParameterValue = (id: string, defaultValue: number) => 
     parameters.find(p => p.id === id)?.value || defaultValue;
+
+  const renderSelectedPart = () => {
+    switch(selectedPart) {
+      case 'gear':
+        return (
+          <GearModel 
+            parameters={{
+              teeth: getParameterValue('teeth', 20),
+              radius: getParameterValue('radius', 5),
+              thickness: getParameterValue('thickness', 1),
+              hole: getParameterValue('hole', 1),
+            }}
+            material={material.id}
+            autoRotate={true}
+          />
+        );
+      case 'pipe':
+        return (
+          <PipeModel
+            parameters={{
+              length: getParameterValue('length', 5),
+              radius: getParameterValue('radius', 1),
+              thickness: getParameterValue('thickness', 0.2),
+            }}
+            material={material.id}
+          />
+        );
+      case 'spring':
+        return (
+          <SpringModel
+            parameters={{
+              radius: getParameterValue('radius', 1),
+              thickness: getParameterValue('thickness', 0.1),
+              coils: getParameterValue('coils', 5),
+              height: getParameterValue('height', 5),
+            }}
+            material={material.id}
+          />
+        );
+      case 'bolt':
+        return (
+          <BoltModel
+            parameters={{
+              headRadius: getParameterValue('headRadius', 0.8),
+              shaftRadius: getParameterValue('shaftRadius', 0.4),
+              length: getParameterValue('length', 3),
+            }}
+            material={material.id}
+          />
+        );
+      case 'nut':
+        return (
+          <NutModel
+            parameters={{
+              radius: getParameterValue('radius', 0.8),
+              height: getParameterValue('height', 0.6),
+              holeRadius: getParameterValue('holeRadius', 0.4),
+            }}
+            material={material.id}
+          />
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="w-full h-full bg-gray-100 rounded-lg overflow-hidden shadow-inner">
@@ -27,7 +98,6 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading
         </div>
       ) : (
         <Canvas shadows dpr={[1, 2]}>
-          <PerspectiveCamera makeDefault position={[0, 0, 20]} fov={40} />
           <color attach="background" args={['#f5f5f5']} />
           
           <Suspense fallback={null}>
@@ -39,55 +109,8 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({ parameters, material, isLoading
               castShadow 
             />
             
-            {/* Display different parts based on selected part type */}
             <group position={[0, 0, 0]}>
-              <GearModel 
-                parameters={{
-                  teeth: getParameterValue('teeth', 20),
-                  radius: getParameterValue('radius', 5),
-                  thickness: getParameterValue('thickness', 1),
-                  hole: getParameterValue('hole', 1),
-                }}
-                material={material.id}
-                autoRotate={true}
-              />
-              
-              <PipeModel
-                parameters={{
-                  length: 5,
-                  radius: 1,
-                  thickness: 0.2,
-                }}
-                material={material.id}
-              />
-              
-              <SpringModel
-                parameters={{
-                  radius: 1,
-                  thickness: 0.1,
-                  coils: 5,
-                  height: 5,
-                }}
-                material={material.id}
-              />
-              
-              <BoltModel
-                parameters={{
-                  headRadius: 0.8,
-                  shaftRadius: 0.4,
-                  length: 3,
-                }}
-                material={material.id}
-              />
-              
-              <NutModel
-                parameters={{
-                  radius: 0.8,
-                  height: 0.6,
-                  holeRadius: 0.4,
-                }}
-                material={material.id}
-              />
+              {renderSelectedPart()}
             </group>
 
             <Grid 

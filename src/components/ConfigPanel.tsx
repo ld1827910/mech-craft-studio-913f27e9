@@ -9,6 +9,7 @@ interface ConfigPanelProps {
   parameters: PartParameter[];
   materials: Material[];
   selectedMaterial: Material;
+  selectedPart: string;
   onParameterChange: (id: string, value: number) => void;
   onMaterialChange: (material: Material) => void;
   isLoading?: boolean;
@@ -18,14 +19,34 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   parameters,
   materials,
   selectedMaterial,
+  selectedPart,
   onParameterChange,
   onMaterialChange,
   isLoading = false,
 }) => {
+  const getPartParameters = () => {
+    switch(selectedPart) {
+      case 'gear':
+        return parameters.filter(p => ['teeth', 'radius', 'thickness', 'hole'].includes(p.id));
+      case 'pipe':
+        return parameters.filter(p => ['length', 'radius', 'thickness'].includes(p.id));
+      case 'spring':
+        return parameters.filter(p => ['radius', 'thickness', 'coils', 'height'].includes(p.id));
+      case 'bolt':
+        return parameters.filter(p => ['headRadius', 'shaftRadius', 'length'].includes(p.id));
+      case 'nut':
+        return parameters.filter(p => ['radius', 'height', 'holeRadius'].includes(p.id));
+      default:
+        return [];
+    }
+  };
+
+  const partTitle = selectedPart.charAt(0).toUpperCase() + selectedPart.slice(1);
+
   return (
     <Card className="w-full h-full overflow-auto">
       <CardHeader className="bg-mechanical-blue text-white">
-        <CardTitle className="text-xl">Gear Configuration</CardTitle>
+        <CardTitle className="text-xl">{partTitle} Configuration</CardTitle>
       </CardHeader>
       <CardContent className="p-6">
         {isLoading ? (
@@ -42,7 +63,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-medium mb-4">Dimensions</h3>
-                {parameters.map((param) => (
+                {getPartParameters().map((param) => (
                   <div key={param.id} className="mb-6">
                     <div className="flex justify-between mb-2">
                       <Label htmlFor={param.id} className="text-sm font-medium">
