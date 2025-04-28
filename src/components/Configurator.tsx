@@ -5,7 +5,7 @@ import ConfigPanel from './ConfigPanel';
 import { useMockGraphQL, PartParameter, Material } from '@/hooks/useMockGraphQL';
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
-import { Gear, Pipe, Spring, Bolt, Nut } from 'lucide-react';
+import { Cog, CircleDot, Cylinder, Bolt, Hexagon } from 'lucide-react';
 
 const Configurator: React.FC = () => {
   const { loading, error, data } = useMockGraphQL();
@@ -48,11 +48,11 @@ const Configurator: React.FC = () => {
   }
 
   const partOptions = [
-    { id: 'gear', name: 'Gear', icon: Gear },
-    { id: 'pipe', name: 'Pipe', icon: Pipe },
-    { id: 'spring', name: 'Spring', icon: Spring },
+    { id: 'gear', name: 'Gear', icon: Cog },
+    { id: 'pipe', name: 'Pipe', icon: Cylinder },
+    { id: 'spring', name: 'Spring', icon: CircleDot },
     { id: 'bolt', name: 'Bolt', icon: Bolt },
-    { id: 'nut', name: 'Nut', icon: Nut },
+    { id: 'nut', name: 'Nut', icon: Hexagon },
   ];
 
   return (
