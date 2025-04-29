@@ -47,6 +47,10 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   };
 
   const partTitle = selectedPart.charAt(0).toUpperCase() + selectedPart.slice(1);
+  
+  // Determine if the current part supports auto-rotation
+  // Currently all parts except 'nut' support auto-rotation
+  const supportsAutoRotation = selectedPart !== 'nut';
 
   return (
     <Card className="w-full h-full overflow-auto">
@@ -66,7 +70,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         ) : (
           <>
             <div className="space-y-6">
-              {selectedPart === 'gear' && (
+              {supportsAutoRotation && (
                 <div className="flex items-center justify-between py-2 border-b">
                   <Label htmlFor="auto-rotate" className="text-sm font-medium">
                     Auto Rotation

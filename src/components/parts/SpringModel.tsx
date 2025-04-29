@@ -1,5 +1,6 @@
 
 import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface SpringProps {
@@ -10,9 +11,10 @@ interface SpringProps {
     height: number;
   };
   material: string;
+  autoRotate?: boolean;
 }
 
-export default function SpringModel({ parameters, material }: SpringProps) {
+export default function SpringModel({ parameters, material, autoRotate = false }: SpringProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   const materialColor = useMemo(() => {
@@ -41,6 +43,13 @@ export default function SpringModel({ parameters, material }: SpringProps) {
     
     return new THREE.TubeGeometry(curve, coils * 20, thickness/2, 8, false);
   }, [parameters]);
+
+  // Add rotation animation
+  useFrame((_, delta) => {
+    if (autoRotate && meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.5;
+    }
+  });
 
   return (
     <mesh ref={meshRef} geometry={springGeometry}>

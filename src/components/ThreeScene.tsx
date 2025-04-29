@@ -51,6 +51,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               thickness: getParameterValue('thickness', 0.2),
             }}
             material={material.id}
+            autoRotate={autoRotate}
           />
         );
       case 'spring':
@@ -63,6 +64,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               height: getParameterValue('height', 5),
             }}
             material={material.id}
+            autoRotate={autoRotate}
           />
         );
       case 'bolt':
@@ -74,6 +76,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               length: getParameterValue('length', 3),
             }}
             material={material.id}
+            autoRotate={autoRotate}
           />
         );
       case 'nut':

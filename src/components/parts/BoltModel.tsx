@@ -1,5 +1,6 @@
 
 import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface BoltProps {
@@ -9,9 +10,10 @@ interface BoltProps {
     length: number;
   };
   material: string;
+  autoRotate?: boolean;
 }
 
-export default function BoltModel({ parameters, material }: BoltProps) {
+export default function BoltModel({ parameters, material, autoRotate = false }: BoltProps) {
   const groupRef = useRef<THREE.Group>(null);
   
   const materialColor = useMemo(() => {
@@ -31,6 +33,13 @@ export default function BoltModel({ parameters, material }: BoltProps) {
       shaftGeometry: new THREE.CylinderGeometry(shaftRadius, shaftRadius, length, 16)
     };
   }, [parameters]);
+
+  // Add rotation animation
+  useFrame((_, delta) => {
+    if (autoRotate && groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.5;
+    }
+  });
 
   return (
     <group ref={groupRef}>

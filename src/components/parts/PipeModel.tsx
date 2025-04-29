@@ -1,5 +1,6 @@
 
 import { useRef, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface PipeProps {
@@ -9,9 +10,10 @@ interface PipeProps {
     thickness: number;
   };
   material: string;
+  autoRotate?: boolean;
 }
 
-export default function PipeModel({ parameters, material }: PipeProps) {
+export default function PipeModel({ parameters, material, autoRotate = false }: PipeProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   const materialColor = useMemo(() => {
@@ -35,6 +37,13 @@ export default function PipeModel({ parameters, material }: PipeProps) {
       true
     );
   }, [parameters]);
+
+  // Add rotation animation
+  useFrame((_, delta) => {
+    if (autoRotate && meshRef.current) {
+      meshRef.current.rotation.y += delta * 0.5;
+    }
+  });
 
   return (
     <mesh ref={meshRef} geometry={pipeGeometry}>
