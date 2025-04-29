@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
@@ -16,7 +17,7 @@ const Configurator: React.FC = () => {
     color: '#A5A5A5' 
   });
   const [selectedPart, setSelectedPart] = useState('gear');
-  const [autoRotate, setAutoRotate] = useState(true);
+  const [autoRotate, setAutoRotate] = useState(false); // Changed to false (off by default)
 
   React.useEffect(() => {
     if (data) {

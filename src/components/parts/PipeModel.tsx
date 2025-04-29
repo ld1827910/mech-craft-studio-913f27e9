@@ -28,14 +28,33 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
 
   const pipeGeometry = useMemo(() => {
     const { length, radius, thickness } = parameters;
-    return new THREE.CylinderGeometry(
-      radius,
-      radius,
-      length,
-      32,
-      1,
-      true
-    );
+    
+    // Create the pipe shape (a ring)
+    const shape = new THREE.Shape();
+    // Outer circle
+    shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
+    
+    // Inner circle (creating the hollow part)
+    const holePath = new THREE.Path();
+    // The inner radius is the outer radius minus the thickness
+    const innerRadius = Math.max(radius - thickness, 0.1); // Ensure minimum inner radius
+    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+    shape.holes.push(holePath);
+    
+    // Extrude settings
+    const extrudeSettings = {
+      depth: length,
+      bevelEnabled: false
+    };
+    
+    // Create the extruded geometry
+    const pipe = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+    // Rotate to correct orientation and center
+    pipe.rotateX(Math.PI / 2);
+    pipe.center();
+    
+    return pipe;
   }, [parameters]);
 
   // Add rotation animation

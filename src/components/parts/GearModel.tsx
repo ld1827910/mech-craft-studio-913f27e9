@@ -26,130 +26,112 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     }
   }, [material]);
 
-  // Generate gear geometry with teeth and center hole
+  // Generate the spur gear geometry
   const gearGeometry = useMemo(() => {
     const { teeth, radius, thickness, hole } = parameters;
     
-    // Create basic gear shape with teeth
+    // Create the gear shape
     const shape = new THREE.Shape();
-    const outerRadius = radius;
-    const innerRadius = Math.max(0.1, hole); // Ensure minimum hole size
-    const toothHeight = radius * 0.2;
     
-    // Create gear outline as a circle
-    shape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
+    // Calculate tooth parameters
+    const toothDepth = radius * 0.2;
+    const outerRadius = radius + toothDepth;
+    const innerRadius = radius;
+    const holeRadius = Math.max(hole, 0.1); // Ensure minimum hole size
+    const angleStep = (Math.PI * 2) / teeth;
+    const toothWidth = angleStep * 0.4;
     
-    // Create center hole
-    const holePath = new THREE.Path();
-    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
-    shape.holes.push(holePath);
-    
-    // If teeth parameter is greater than 0, add teeth
-    if (teeth > 0) {
-      // Remove the original circle outline
-      shape.curves = [];
+    // Draw the gear teeth
+    for (let i = 0; i < teeth; i++) {
+      const angle = i * angleStep;
       
-      const angleStep = (Math.PI * 2) / teeth;
-      const toothAngle = angleStep * 0.4; // Width of tooth as fraction of angle step
+      // Points for this tooth
+      const p1 = {
+        x: innerRadius * Math.cos(angle),
+        y: innerRadius * Math.sin(angle)
+      };
       
-      for (let i = 0; i < teeth; i++) {
-        const startAngle = i * angleStep;
-        const midAngle = startAngle + (angleStep / 2);
-        const endAngle = startAngle + angleStep;
-        
-        // Start point of tooth (on base circle)
-        const startX = outerRadius * Math.cos(startAngle);
-        const startY = outerRadius * Math.sin(startAngle);
-        
-        // Tooth peak (first corner)
-        const toothPeak1X = (outerRadius + toothHeight) * Math.cos(startAngle + toothAngle);
-        const toothPeak1Y = (outerRadius + toothHeight) * Math.sin(startAngle + toothAngle);
-        
-        // Tooth valley (middle of tooth top)
-        const toothValleyX = (outerRadius + toothHeight * 0.7) * Math.cos(midAngle);
-        const toothValleyY = (outerRadius + toothHeight * 0.7) * Math.sin(midAngle);
-        
-        // Tooth peak (second corner)
-        const toothPeak2X = (outerRadius + toothHeight) * Math.cos(endAngle - toothAngle);
-        const toothPeak2Y = (outerRadius + toothHeight) * Math.sin(endAngle - toothAngle);
-        
-        // End point (back on base circle)
-        const endX = outerRadius * Math.cos(endAngle);
-        const endY = outerRadius * Math.sin(endAngle);
-        
-        // Draw the tooth with bezier curves for smooth transitions
-        if (i === 0) {
-          shape.moveTo(startX, startY);
-        }
-        
-        // Create a smooth curve to the first peak
-        shape.bezierCurveTo(
-          startX * 1.05, startY * 1.05,
-          toothPeak1X * 0.95, toothPeak1Y * 0.95,
-          toothPeak1X, toothPeak1Y
-        );
-        
-        // Create a smooth curve to the valley
-        shape.bezierCurveTo(
-          toothPeak1X * 1.02, toothPeak1Y * 1.02,
-          toothValleyX * 0.98, toothValleyY * 0.98,
-          toothValleyX, toothValleyY
-        );
-        
-        // Create a smooth curve to the second peak
-        shape.bezierCurveTo(
-          toothValleyX * 1.02, toothValleyY * 1.02,
-          toothPeak2X * 0.98, toothPeak2Y * 0.98,
-          toothPeak2X, toothPeak2Y
-        );
-        
-        // Create a smooth curve back to the base circle
-        shape.bezierCurveTo(
-          toothPeak2X * 0.95, toothPeak2Y * 0.95,
-          endX * 1.05, endY * 1.05,
-          endX, endY
-        );
+      const p2 = {
+        x: outerRadius * Math.cos(angle + toothWidth/2),
+        y: outerRadius * Math.sin(angle + toothWidth/2)
+      };
+      
+      const p3 = {
+        x: outerRadius * Math.cos(angle + angleStep - toothWidth/2),
+        y: outerRadius * Math.sin(angle + angleStep - toothWidth/2)
+      };
+      
+      const p4 = {
+        x: innerRadius * Math.cos(angle + angleStep),
+        y: innerRadius * Math.sin(angle + angleStep)
+      };
+      
+      // First tooth starts the shape
+      if (i === 0) {
+        shape.moveTo(p1.x, p1.y);
       }
       
-      // Close the shape
-      shape.closePath();
+      // Create curved transition to tooth peak
+      shape.bezierCurveTo(
+        innerRadius * 1.05 * Math.cos(angle + toothWidth/4),
+        innerRadius * 1.05 * Math.sin(angle + toothWidth/4),
+        outerRadius * 0.95 * Math.cos(angle + toothWidth/2),
+        outerRadius * 0.95 * Math.sin(angle + toothWidth/2),
+        p2.x, p2.y
+      );
+      
+      // Straight line across tooth top
+      shape.lineTo(p3.x, p3.y);
+      
+      // Create curved transition back to inner radius
+      shape.bezierCurveTo(
+        outerRadius * 0.95 * Math.cos(angle + angleStep - toothWidth/4),
+        outerRadius * 0.95 * Math.sin(angle + angleStep - toothWidth/4),
+        innerRadius * 1.05 * Math.cos(angle + angleStep),
+        innerRadius * 1.05 * Math.sin(angle + angleStep),
+        p4.x, p4.y
+      );
     }
     
-    // Extrude settings for smooth transitions
+    // Close the shape
+    shape.closePath();
+    
+    // Add the center hole
+    const holePath = new THREE.Path();
+    holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
+    shape.holes.push(holePath);
+    
+    // Extrude settings with beveling for a more realistic look
     const extrudeSettings = {
-      steps: 2,
       depth: thickness,
       bevelEnabled: true,
       bevelThickness: thickness * 0.1,
       bevelSize: thickness * 0.05,
       bevelOffset: 0,
-      bevelSegments: 5,
+      bevelSegments: 3
     };
     
-    const gearBaseGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    // Create the extruded geometry
+    const gearGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     
-    // Center the geometry on its axis
-    gearBaseGeometry.center();
+    // Center and orient correctly
+    gearGeometry.center();
+    gearGeometry.rotateX(Math.PI / 2);
     
-    // Rotate to correct orientation
-    gearBaseGeometry.rotateX(Math.PI / 2);
-    
-    return gearBaseGeometry;
-  }, [parameters]); // Regenerate when any parameter changes
+    return gearGeometry;
+  }, [parameters]);
 
-  // Smooth rotation animation
+  // Rotation animation
   useFrame((_, delta) => {
     if (autoRotate && meshRef.current) {
-      // Smooth rotation
       meshRef.current.rotation.z += delta * 0.5;
     }
   });
 
   return (
-    <mesh 
-      ref={meshRef} 
-      geometry={gearGeometry} 
-      position={[0, 0, 0]}
+    <mesh
+      ref={meshRef}
+      geometry={gearGeometry}
       castShadow
       receiveShadow
     >
