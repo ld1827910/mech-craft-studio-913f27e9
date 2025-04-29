@@ -1,7 +1,7 @@
-
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface PipeProps {
   parameters: {
@@ -33,6 +33,9 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
     const safeThickness = Math.min(thickness, radius * 0.95);
     const innerRadius = Math.max(radius - safeThickness, 0.1); // Ensure minimum inner radius
     
+    // Create an array to hold our geometries
+    const geometries: THREE.BufferGeometry[] = [];
+    
     // Create a cylinder for the outer pipe
     const outerCylinder = new THREE.CylinderGeometry(
       radius, // top radius
@@ -43,64 +46,92 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
       true // open-ended
     );
     
-    // Create a cylinder for the inner hole
-    const innerCylinder = new THREE.CylinderGeometry(
-      innerRadius, // top radius
-      innerRadius, // bottom radius
-      length + 0.2, // slightly longer to ensure clean boolean operation
-      32, // radial segments
-      2, // height segments
-      true // open-ended
-    );
-    
-    // Position for CSG operations
+    // Rotate to align with z-axis
     outerCylinder.rotateX(Math.PI / 2);
-    innerCylinder.rotateX(Math.PI / 2);
+    geometries.push(outerCylinder);
     
-    // Create end caps for the pipe (optional)
-    const ringGeometry = new THREE.RingGeometry(
-      innerRadius, 
-      radius, 
-      32 // segments
+    // Create end caps using dedicated cylinder geometries with zero height
+    // Top cap (ring)
+    const topCapOuter = new THREE.CylinderGeometry(
+      radius,
+      radius,
+      0.01,
+      32,
+      1,
+      false
     );
+    topCapOuter.rotateX(Math.PI / 2);
+    topCapOuter.translate(0, 0, length / 2);
+    geometries.push(topCapOuter);
     
-    // Create two end caps
-    const endCap1 = ringGeometry.clone();
-    endCap1.rotateY(Math.PI / 2);
-    endCap1.translate(0, 0, length / 2);
+    // Bottom cap (ring)
+    const bottomCapOuter = new THREE.CylinderGeometry(
+      radius,
+      radius,
+      0.01,
+      32,
+      1,
+      false
+    );
+    bottomCapOuter.rotateX(Math.PI / 2);
+    bottomCapOuter.translate(0, 0, -length / 2);
+    geometries.push(bottomCapOuter);
     
-    const endCap2 = ringGeometry.clone();
-    endCap2.rotateY(-Math.PI / 2);
-    endCap2.translate(0, 0, -length / 2);
-    
-    // Combine all geometries
-    const geometries = [outerCylinder];
-    
-    if (innerRadius < radius) { // Only if we have thickness
-      geometries.push(endCap1, endCap2);
+    // Inner cylinder (hole) - if thickness > 0
+    if (innerRadius < radius) {
+      // For the inner hole
+      const innerCylinder = new THREE.CylinderGeometry(
+        innerRadius,
+        innerRadius,
+        length + 0.02, // slightly longer to ensure clean subtraction
+        32,
+        1,
+        true
+      );
+      innerCylinder.rotateX(Math.PI / 2);
+      
+      // Inner caps
+      const topCapInner = new THREE.CylinderGeometry(
+        innerRadius,
+        innerRadius,
+        0.02,
+        32,
+        1,
+        false
+      );
+      topCapInner.rotateX(Math.PI / 2);
+      topCapInner.translate(0, 0, length / 2 + 0.005);
+      
+      const bottomCapInner = new THREE.CylinderGeometry(
+        innerRadius,
+        innerRadius,
+        0.02,
+        32,
+        1,
+        false
+      );
+      bottomCapInner.rotateX(Math.PI / 2);
+      bottomCapInner.translate(0, 0, -length / 2 - 0.005);
+      
+      // Create boolean operations manually by keeping outer geometries and creating holes through materials
+      // We'll use the clipping planes in the material instead of CSG operations
+      
+      // Merge all outer geometries
+      const mergedOuterGeometry = mergeBufferGeometries(geometries);
+      
+      // Center the geometry
+      mergedOuterGeometry.center();
+      
+      return mergedOuterGeometry;
+    } else {
+      // If there's no thickness (solid cylinder), just merge and return
+      const mergedGeometry = mergeBufferGeometries(geometries);
+      
+      // Center the geometry
+      mergedGeometry.center();
+      
+      return mergedGeometry;
     }
-    
-    // Create merged buffer geometry
-    const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(
-      geometries.map(g => g.toNonIndexed())
-    );
-    
-    // Compute vertex normals for proper lighting
-    mergedGeometry.computeVertexNormals();
-    
-    // Make the inner cylinder a hole by using CSG operations
-    // This approach allows for cleaner holes without floating point issues
-    const outerMesh = new THREE.Mesh(mergedGeometry);
-    const innerMesh = new THREE.Mesh(innerCylinder);
-    
-    // Use Three.js CSG operations to subtract inner cylinder from outer geometry
-    const pipeWithHole = THREE.CSG.subtract(outerMesh, innerMesh);
-    
-    // Center the geometry
-    const resultGeometry = pipeWithHole.geometry;
-    resultGeometry.center();
-    
-    return resultGeometry;
   }, [parameters]);
 
   // Add rotation animation
@@ -110,6 +141,11 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
     }
   });
 
+  // Create hole in the material if needed
+  const { length, radius, thickness } = parameters;
+  const innerRadius = Math.max(radius - thickness, 0.1);
+  const hasHole = innerRadius < radius;
+
   return (
     <mesh ref={meshRef} geometry={pipeGeometry}>
       <meshStandardMaterial 
@@ -117,7 +153,40 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
         metalness={0.7} 
         roughness={0.3}
         side={THREE.DoubleSide}
+        // If we have an inner hole, use clipping planes to cut it out
+        clipIntersection={hasHole}
+        clippingPlanes={hasHole ? [
+          // Create a circular clipping area
+          new THREE.Plane(new THREE.Vector3(0, 0, 1), length / 2),
+          new THREE.Plane(new THREE.Vector3(0, 0, -1), length / 2)
+        ] : []}
       />
+      
+      {/* If there's a hole, add an inner cylinder with a different material that's slightly smaller */}
+      {hasHole && (
+        <mesh>
+          <cylinderGeometry 
+            args={[
+              innerRadius, // top radius 
+              innerRadius, // bottom radius
+              length + 0.01, // height
+              32, // radial segments
+              1, // height segments
+              true // open-ended
+            ]} 
+            rotation={[Math.PI / 2, 0, 0]}
+          />
+          <meshStandardMaterial 
+            color={materialColor} 
+            metalness={0.7} 
+            roughness={0.3}
+            side={THREE.DoubleSide}
+            transparent={true}
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
     </mesh>
   );
 }
