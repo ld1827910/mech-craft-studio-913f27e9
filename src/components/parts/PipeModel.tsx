@@ -1,7 +1,8 @@
+
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { mergeBufferGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 interface PipeProps {
   parameters: {
@@ -117,7 +118,7 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
       // We'll use the clipping planes in the material instead of CSG operations
       
       // Merge all outer geometries
-      const mergedOuterGeometry = mergeBufferGeometries(geometries);
+      const mergedOuterGeometry = mergeGeometries(geometries);
       
       // Center the geometry
       mergedOuterGeometry.center();
@@ -125,7 +126,7 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
       return mergedOuterGeometry;
     } else {
       // If there's no thickness (solid cylinder), just merge and return
-      const mergedGeometry = mergeBufferGeometries(geometries);
+      const mergedGeometry = mergeGeometries(geometries);
       
       // Center the geometry
       mergedGeometry.center();
@@ -173,8 +174,7 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
               32, // radial segments
               1, // height segments
               true // open-ended
-            ]} 
-            rotation={[Math.PI / 2, 0, 0]}
+            ]}
           />
           <meshStandardMaterial 
             color={materialColor} 
