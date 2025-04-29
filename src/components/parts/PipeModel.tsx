@@ -29,32 +29,78 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
   const pipeGeometry = useMemo(() => {
     const { length, radius, thickness } = parameters;
     
-    // Create the pipe shape (a ring)
-    const shape = new THREE.Shape();
-    // Outer circle
-    shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
+    // Ensure thickness is never greater than radius (prevents negative inner radius)
+    const safeThickness = Math.min(thickness, radius * 0.95);
+    const innerRadius = Math.max(radius - safeThickness, 0.1); // Ensure minimum inner radius
     
-    // Inner circle (creating the hollow part)
-    const holePath = new THREE.Path();
-    // The inner radius is the outer radius minus the thickness
-    const innerRadius = Math.max(radius - thickness, 0.1); // Ensure minimum inner radius
-    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
-    shape.holes.push(holePath);
+    // Create a cylinder for the outer pipe
+    const outerCylinder = new THREE.CylinderGeometry(
+      radius, // top radius
+      radius, // bottom radius
+      length, // height
+      32, // radial segments
+      2, // height segments
+      true // open-ended
+    );
     
-    // Extrude settings
-    const extrudeSettings = {
-      depth: length,
-      bevelEnabled: false
-    };
+    // Create a cylinder for the inner hole
+    const innerCylinder = new THREE.CylinderGeometry(
+      innerRadius, // top radius
+      innerRadius, // bottom radius
+      length + 0.2, // slightly longer to ensure clean boolean operation
+      32, // radial segments
+      2, // height segments
+      true // open-ended
+    );
     
-    // Create the extruded geometry
-    const pipe = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    // Position for CSG operations
+    outerCylinder.rotateX(Math.PI / 2);
+    innerCylinder.rotateX(Math.PI / 2);
     
-    // Rotate to correct orientation and center
-    pipe.rotateX(Math.PI / 2);
-    pipe.center();
+    // Create end caps for the pipe (optional)
+    const ringGeometry = new THREE.RingGeometry(
+      innerRadius, 
+      radius, 
+      32 // segments
+    );
     
-    return pipe;
+    // Create two end caps
+    const endCap1 = ringGeometry.clone();
+    endCap1.rotateY(Math.PI / 2);
+    endCap1.translate(0, 0, length / 2);
+    
+    const endCap2 = ringGeometry.clone();
+    endCap2.rotateY(-Math.PI / 2);
+    endCap2.translate(0, 0, -length / 2);
+    
+    // Combine all geometries
+    const geometries = [outerCylinder];
+    
+    if (innerRadius < radius) { // Only if we have thickness
+      geometries.push(endCap1, endCap2);
+    }
+    
+    // Create merged buffer geometry
+    const mergedGeometry = THREE.BufferGeometryUtils.mergeBufferGeometries(
+      geometries.map(g => g.toNonIndexed())
+    );
+    
+    // Compute vertex normals for proper lighting
+    mergedGeometry.computeVertexNormals();
+    
+    // Make the inner cylinder a hole by using CSG operations
+    // This approach allows for cleaner holes without floating point issues
+    const outerMesh = new THREE.Mesh(mergedGeometry);
+    const innerMesh = new THREE.Mesh(innerCylinder);
+    
+    // Use Three.js CSG operations to subtract inner cylinder from outer geometry
+    const pipeWithHole = THREE.CSG.subtract(outerMesh, innerMesh);
+    
+    // Center the geometry
+    const resultGeometry = pipeWithHole.geometry;
+    resultGeometry.center();
+    
+    return resultGeometry;
   }, [parameters]);
 
   // Add rotation animation

@@ -9,6 +9,8 @@ interface SpringProps {
     thickness: number;
     coils: number;
     height: number;
+    tension?: number;  // Added tension parameter
+    resolution?: number;  // Added resolution parameter
   };
   material: string;
   autoRotate?: boolean;
@@ -29,19 +31,43 @@ export default function SpringModel({ parameters, material, autoRotate = false }
 
   const springGeometry = useMemo(() => {
     const { radius, thickness, coils, height } = parameters;
+    // Default values for new parameters if not provided
+    const tension = parameters.tension ?? 0;  
+    const resolution = parameters.resolution ?? 24;  // points per coil
+    
+    // Calculate total points based on resolution and coils
+    const totalPoints = Math.max(coils * resolution, 24);
+    
+    // Create a smoother curve with custom parameters
     const curve = new THREE.CatmullRomCurve3(
-      Array.from({ length: coils * 20 }, (_, i) => {
-        const t = i / (coils * 20 - 1);
+      Array.from({ length: totalPoints + 1 }, (_, i) => {
+        const t = i / totalPoints;
         const angle = t * Math.PI * 2 * coils;
+        
+        // Apply tension effect to radius
+        const dynamicRadius = radius * (1 + Math.sin(t * Math.PI * coils) * (tension * 0.2));
+        
+        // Create helical path with smooth progression
         return new THREE.Vector3(
-          radius * Math.cos(angle),
+          dynamicRadius * Math.cos(angle),
           height * t - height/2,
-          radius * Math.sin(angle)
+          dynamicRadius * Math.sin(angle)
         );
-      })
+      }),
+      true // closed curve
     );
     
-    return new THREE.TubeGeometry(curve, coils * 20, thickness/2, 8, false);
+    // Create tube geometry with more segments for smoothness
+    const segments = Math.max(coils * 8, 64);
+    const tubeSegments = Math.max(8, Math.floor(thickness * 10)); // More tube segments for thicker springs
+    
+    return new THREE.TubeGeometry(
+      curve, 
+      segments, 
+      thickness/2, 
+      tubeSegments, 
+      false
+    );
   }, [parameters]);
 
   // Add rotation animation
@@ -57,6 +83,7 @@ export default function SpringModel({ parameters, material, autoRotate = false }
         color={materialColor} 
         metalness={0.7} 
         roughness={0.3}
+        flatShading={false}
       />
     </mesh>
   );
