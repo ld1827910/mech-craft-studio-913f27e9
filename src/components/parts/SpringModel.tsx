@@ -9,8 +9,8 @@ interface SpringProps {
     thickness: number;
     coils: number;
     height: number;
-    tension?: number;  // Added tension parameter
-    resolution?: number;  // Added resolution parameter
+    tension?: number;  // Controls spring tension/compression
+    resolution?: number;  // Controls smoothness
   };
   material: string;
   autoRotate?: boolean;
@@ -31,41 +31,49 @@ export default function SpringModel({ parameters, material, autoRotate = false }
 
   const springGeometry = useMemo(() => {
     const { radius, thickness, coils, height } = parameters;
-    // Default values for new parameters if not provided
+    // Use provided values or defaults
     const tension = parameters.tension ?? 0;  
-    const resolution = parameters.resolution ?? 24;  // points per coil
+    const resolution = parameters.resolution ?? 64;  // Higher default for smoother spring
     
     // Calculate total points based on resolution and coils
-    const totalPoints = Math.max(coils * resolution, 24);
+    const totalPoints = Math.max(coils * resolution, 64);
     
-    // Create a smoother curve with custom parameters
-    const curve = new THREE.CatmullRomCurve3(
-      Array.from({ length: totalPoints + 1 }, (_, i) => {
-        const t = i / totalPoints;
-        const angle = t * Math.PI * 2 * coils;
-        
-        // Apply tension effect to radius
-        const dynamicRadius = radius * (1 + Math.sin(t * Math.PI * coils) * (tension * 0.2));
-        
-        // Create helical path with smooth progression
-        return new THREE.Vector3(
-          dynamicRadius * Math.cos(angle),
-          height * t - height/2,
-          dynamicRadius * Math.sin(angle)
-        );
-      }),
-      true // closed curve
-    );
+    // Create points for a helical spring
+    const points = [];
+    for (let i = 0; i <= totalPoints; i++) {
+      const t = i / totalPoints;
+      
+      // Standard helix parameters
+      const angle = t * Math.PI * 2 * coils;
+      
+      // Apply tension effect (0 = normal, positive = stretched, negative = compressed)
+      const verticalSpacing = height / coils;
+      const verticalPosition = t * height - height / 2;
+      
+      // Dynamic radius based on tension (subtly varies for realism)
+      const dynamicRadius = radius * (1 + Math.sin(angle * 0.5) * (tension * 0.05));
+      
+      // Create point on the helix
+      const x = dynamicRadius * Math.cos(angle);
+      const y = verticalPosition + Math.sin(angle * 2) * (tension * height * 0.02);
+      const z = dynamicRadius * Math.sin(angle);
+      
+      points.push(new THREE.Vector3(x, y, z));
+    }
+    
+    // Create a smooth curve from the points
+    const curve = new THREE.CatmullRomCurve3(points);
+    curve.closed = false; // Spring should not be closed
     
     // Create tube geometry with more segments for smoothness
-    const segments = Math.max(coils * 8, 64);
-    const tubeSegments = Math.max(8, Math.floor(thickness * 10)); // More tube segments for thicker springs
+    const tubeSegments = Math.max(totalPoints, 128);
+    const radialSegments = Math.max(8, Math.ceil(thickness * 20)); // More detail for thicker springs
     
     return new THREE.TubeGeometry(
       curve, 
-      segments, 
-      thickness/2, 
       tubeSegments, 
+      thickness / 2, 
+      radialSegments, 
       false
     );
   }, [parameters]);
@@ -81,8 +89,8 @@ export default function SpringModel({ parameters, material, autoRotate = false }
     <mesh ref={meshRef} geometry={springGeometry}>
       <meshStandardMaterial 
         color={materialColor} 
-        metalness={0.7} 
-        roughness={0.3}
+        metalness={0.8} 
+        roughness={0.2}
         flatShading={false}
       />
     </mesh>

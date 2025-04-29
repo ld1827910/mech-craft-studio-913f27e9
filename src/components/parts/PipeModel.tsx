@@ -78,61 +78,11 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
     bottomCapOuter.translate(0, 0, -length / 2);
     geometries.push(bottomCapOuter);
     
-    // Inner cylinder (hole) - if thickness > 0
-    if (innerRadius < radius) {
-      // For the inner hole
-      const innerCylinder = new THREE.CylinderGeometry(
-        innerRadius,
-        innerRadius,
-        length + 0.02, // slightly longer to ensure clean subtraction
-        32,
-        1,
-        true
-      );
-      innerCylinder.rotateX(Math.PI / 2);
-      
-      // Inner caps
-      const topCapInner = new THREE.CylinderGeometry(
-        innerRadius,
-        innerRadius,
-        0.02,
-        32,
-        1,
-        false
-      );
-      topCapInner.rotateX(Math.PI / 2);
-      topCapInner.translate(0, 0, length / 2 + 0.005);
-      
-      const bottomCapInner = new THREE.CylinderGeometry(
-        innerRadius,
-        innerRadius,
-        0.02,
-        32,
-        1,
-        false
-      );
-      bottomCapInner.rotateX(Math.PI / 2);
-      bottomCapInner.translate(0, 0, -length / 2 - 0.005);
-      
-      // Create boolean operations manually by keeping outer geometries and creating holes through materials
-      // We'll use the clipping planes in the material instead of CSG operations
-      
-      // Merge all outer geometries
-      const mergedOuterGeometry = mergeGeometries(geometries);
-      
-      // Center the geometry
-      mergedOuterGeometry.center();
-      
-      return mergedOuterGeometry;
-    } else {
-      // If there's no thickness (solid cylinder), just merge and return
-      const mergedGeometry = mergeGeometries(geometries);
-      
-      // Center the geometry
-      mergedGeometry.center();
-      
-      return mergedGeometry;
-    }
+    // Merge all outer geometries
+    const mergedOuterGeometry = mergeGeometries(geometries);
+    mergedOuterGeometry.center();
+    
+    return mergedOuterGeometry;
   }, [parameters]);
 
   // Add rotation animation
@@ -148,45 +98,42 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
   const hasHole = innerRadius < radius;
 
   return (
-    <mesh ref={meshRef} geometry={pipeGeometry}>
-      <meshStandardMaterial 
-        color={materialColor} 
-        metalness={0.7} 
-        roughness={0.3}
-        side={THREE.DoubleSide}
-        // If we have an inner hole, use clipping planes to cut it out
-        clipIntersection={hasHole}
-        clippingPlanes={hasHole ? [
-          // Create a circular clipping area
-          new THREE.Plane(new THREE.Vector3(0, 0, 1), length / 2),
-          new THREE.Plane(new THREE.Vector3(0, 0, -1), length / 2)
-        ] : []}
-      />
+    <group>
+      {/* Outer pipe */}
+      <mesh ref={meshRef} geometry={pipeGeometry}>
+        <meshStandardMaterial 
+          color={materialColor} 
+          metalness={0.7} 
+          roughness={0.3}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
       
-      {/* If there's a hole, add an inner cylinder with a different material that's slightly smaller */}
+      {/* Inner hole */}
       {hasHole && (
         <mesh>
           <cylinderGeometry 
             args={[
               innerRadius, // top radius 
               innerRadius, // bottom radius
-              length + 0.01, // height
+              length + 0.02, // height (slightly longer to ensure clean hole)
               32, // radial segments
               1, // height segments
               true // open-ended
             ]}
+            rotation={[Math.PI / 2, 0, 0]}
           />
           <meshStandardMaterial 
-            color={materialColor} 
-            metalness={0.7} 
-            roughness={0.3}
-            side={THREE.DoubleSide}
-            transparent={true}
-            opacity={0}
+            color="black"
+            colorWrite={false}
             depthWrite={false}
+            stencilWrite={true}
+            stencilRef={1}
+            stencilFunc={THREE.AlwaysStencilFunc}
+            stencilZPass={THREE.ReplaceStencilOp}
           />
         </mesh>
       )}
-    </mesh>
+    </group>
   );
 }

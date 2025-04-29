@@ -16,6 +16,7 @@ interface GearProps {
 
 export default function GearModel({ parameters, material, autoRotate = false }: GearProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  
   const materialColor = useMemo(() => {
     switch(material) {
       case 'steel': return new THREE.Color('#A5A5A5');
@@ -26,133 +27,79 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     }
   }, [material]);
 
-  // Generate an improved spur gear geometry
   const gearGeometry = useMemo(() => {
     const { teeth, radius, thickness, hole } = parameters;
     
-    // Create the gear shape
+    // Create the basic gear shape
     const shape = new THREE.Shape();
     
-    // Calculate tooth parameters
-    const toothDepth = radius * 0.25;
+    // Outer circle
     const outerRadius = radius;
-    const rootRadius = radius - toothDepth;
-    const holeRadius = Math.max(hole, 0.1);
-    const angleStep = (Math.PI * 2) / teeth;
-    const toothWidth = angleStep * 0.5;
-    const filletRadius = toothDepth * 0.2;
+    shape.absarc(0, 0, outerRadius, 0, Math.PI * 2, false);
     
-    // Helper for creating fillets
-    const createFillet = (
-      center: THREE.Vector2,
-      startAngle: number,
-      endAngle: number,
-      radius: number,
-      clockwise: boolean
-    ) => {
-      const curve = new THREE.EllipseCurve(
-        center.x, center.y,
-        radius, radius,
-        startAngle, endAngle,
-        clockwise
-      );
-      const points = curve.getPoints(8);
-      return points;
-    };
-    
-    // Draw the gear teeth
-    for (let i = 0; i < teeth; i++) {
-      const angle = i * angleStep;
-      
-      // Root circle points
-      const p1 = new THREE.Vector2(
-        rootRadius * Math.cos(angle - angleStep/4),
-        rootRadius * Math.sin(angle - angleStep/4)
-      );
-      
-      const p2 = new THREE.Vector2(
-        rootRadius * Math.cos(angle + angleStep/4),
-        rootRadius * Math.sin(angle + angleStep/4)
-      );
-      
-      // Pitch circle points (where involute profile begins)
-      const pitchRadius = (outerRadius + rootRadius) / 2;
-      
-      // Outer tooth points
-      const topStart = new THREE.Vector2(
-        outerRadius * Math.cos(angle - toothWidth/3),
-        outerRadius * Math.sin(angle - toothWidth/3)
-      );
-      
-      const topCenter = new THREE.Vector2(
-        (outerRadius + toothDepth * 0.2) * Math.cos(angle),
-        (outerRadius + toothDepth * 0.2) * Math.sin(angle)
-      );
-      
-      const topEnd = new THREE.Vector2(
-        outerRadius * Math.cos(angle + toothWidth/3),
-        outerRadius * Math.sin(angle + toothWidth/3)
-      );
-      
-      // First tooth starts the shape
-      if (i === 0) {
-        shape.moveTo(p1.x, p1.y);
-      }
-      
-      // Create tooth profile with fillets
-      shape.lineTo(p1.x, p1.y);
-      
-      // Involute curve from root to outer radius (addendum)
-      const filletPoints1 = createFillet(
-        new THREE.Vector2(
-          rootRadius * 1.1 * Math.cos(angle - angleStep/6),
-          rootRadius * 1.1 * Math.sin(angle - angleStep/6)
-        ),
-        angle - Math.PI/2, angle, filletRadius, false
-      );
-      
-      for (const point of filletPoints1) {
-        shape.lineTo(point.x, point.y);
-      }
-      
-      // Top of tooth (slightly curved for realism)
-      shape.quadraticCurveTo(
-        topCenter.x, topCenter.y,
-        topEnd.x, topEnd.y
-      );
-      
-      // Involute curve from outer radius to root (dedendum)
-      const filletPoints2 = createFillet(
-        new THREE.Vector2(
-          rootRadius * 1.1 * Math.cos(angle + angleStep/6),
-          rootRadius * 1.1 * Math.sin(angle + angleStep/6)
-        ),
-        angle, angle + Math.PI/2, filletRadius, false
-      );
-      
-      for (const point of filletPoints2) {
-        shape.lineTo(point.x, point.y);
-      }
-      
-      shape.lineTo(p2.x, p2.y);
+    // Inner circle (hole)
+    if (hole > 0) {
+      const holePath = new THREE.Path();
+      holePath.absarc(0, 0, hole, 0, Math.PI * 2, true);
+      shape.holes.push(holePath);
     }
     
-    // Close the shape
-    shape.closePath();
+    // Add simple teeth if teeth > 0
+    if (teeth > 0) {
+      // Remove the main shape and create a new one with teeth
+      shape.curves = [];
+      
+      const toothDepth = radius * 0.2;
+      const baseRadius = radius - toothDepth;
+      const angleStep = (Math.PI * 2) / teeth;
+      
+      // Draw the gear teeth outline
+      for (let i = 0; i < teeth; i++) {
+        const angle1 = i * angleStep;
+        const angle2 = angle1 + angleStep / 2;
+        const angle3 = angle1 + angleStep;
+        
+        // Tooth base point 1
+        const x1 = baseRadius * Math.cos(angle1);
+        const y1 = baseRadius * Math.sin(angle1);
+        
+        // Tooth tip
+        const x2 = radius * Math.cos(angle2);
+        const y2 = radius * Math.sin(angle2);
+        
+        // Tooth base point 2
+        const x3 = baseRadius * Math.cos(angle3);
+        const y3 = baseRadius * Math.sin(angle3);
+        
+        if (i === 0) {
+          shape.moveTo(x1, y1);
+        } else {
+          shape.lineTo(x1, y1);
+        }
+        
+        shape.lineTo(x2, y2);
+        shape.lineTo(x3, y3);
+      }
+      
+      // Close the shape
+      shape.closePath();
+      
+      // Add the center hole if needed
+      if (hole > 0) {
+        const holePath = new THREE.Path();
+        holePath.absarc(0, 0, hole, 0, Math.PI * 2, true);
+        shape.holes.push(holePath);
+      }
+    }
     
-    // Add the center hole
-    const holePath = new THREE.Path();
-    holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
-    shape.holes.push(holePath);
-    
-    // Extrude settings
+    // Extrude settings - simplified with minimal beveling
     const extrudeSettings = {
       depth: thickness,
       bevelEnabled: true,
-      bevelThickness: thickness * 0.1,
-      bevelSize: thickness * 0.05,
+      bevelThickness: thickness * 0.05,
+      bevelSize: thickness * 0.02,
       bevelOffset: 0,
-      bevelSegments: 6
+      bevelSegments: 2
     };
     
     // Create the extruded geometry
@@ -181,8 +128,8 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     >
       <meshStandardMaterial 
         color={materialColor} 
-        metalness={0.8}
-        roughness={0.2}
+        metalness={0.6}
+        roughness={0.4}
         side={THREE.DoubleSide}
       />
     </mesh>
