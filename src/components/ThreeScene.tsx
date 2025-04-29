@@ -14,13 +14,15 @@ interface ThreeSceneProps {
   material: Material;
   selectedPart: string;
   isLoading?: boolean;
+  autoRotate?: boolean;
 }
 
 const ThreeScene: React.FC<ThreeSceneProps> = ({ 
   parameters, 
   material, 
   selectedPart,
-  isLoading = false 
+  isLoading = false,
+  autoRotate = false
 }) => {
   const getParameterValue = (id: string, defaultValue: number) => 
     parameters.find(p => p.id === id)?.value || defaultValue;
@@ -37,7 +39,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               hole: getParameterValue('hole', 1),
             }}
             material={material.id}
-            autoRotate={true}
+            autoRotate={autoRotate}
           />
         );
       case 'pipe':
