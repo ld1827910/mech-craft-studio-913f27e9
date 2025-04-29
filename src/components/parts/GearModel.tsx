@@ -92,7 +92,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       }
     }
     
-    // Extrude settings - simplified with minimal beveling
+    // Extrude settings
     const extrudeSettings = {
       depth: thickness,
       bevelEnabled: true,
@@ -120,18 +120,20 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
   });
 
   return (
-    <mesh
-      ref={meshRef}
-      geometry={gearGeometry}
-      castShadow
-      receiveShadow
-    >
-      <meshStandardMaterial 
-        color={materialColor} 
-        metalness={0.6}
-        roughness={0.4}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group>
+      <mesh
+        ref={meshRef}
+        geometry={gearGeometry}
+        castShadow
+        receiveShadow
+      >
+        <meshStandardMaterial 
+          color={materialColor} 
+          metalness={0.6}
+          roughness={0.4}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+    </group>
   );
 }

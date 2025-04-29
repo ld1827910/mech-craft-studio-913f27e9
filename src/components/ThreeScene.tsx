@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Grid } from '@react-three/drei';
@@ -146,6 +145,6 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
       )}
     </div>
   );
-};
+}
 
 export default ThreeScene;
