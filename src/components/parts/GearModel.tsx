@@ -46,30 +46,24 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       const angleStep = (Math.PI * 2) / teeth;
       
       // Draw the gear teeth outline
-      for (let i = 0; i < teeth; i++) {
+        for (let i = 0; i < teeth; i++) {
         const angle1 = i * angleStep;
-        const angle2 = angle1 + angleStep / 4;
-        const angle3 = angle1 + angleStep / 2;
-        const angle4 = angle1 + (angleStep * 3) / 4;
-        const angle5 = angle1 + angleStep;
-        
+        const angle2 = angle1 + angleStep / 2;
+        const angle3 = angle1 + angleStep;
+        const angle5 = angle3
+
         // Tooth base point 1
         const x1 = baseRadius * Math.cos(angle1);
         const y1 = baseRadius * Math.sin(angle1);
-        
-        // Tooth tip 1
-        const x2 = (radius + toothDepth * 0.5) * Math.cos(angle2);
-        const y2 = (radius + toothDepth * 0.5) * Math.sin(angle2);
-        
-        // Tooth tip 2
-        const x3 = (radius + toothDepth) * Math.cos(angle3);
-        const y3 = (radius + toothDepth) * Math.sin(angle3);
-        
-        // Tooth tip 3
-        const x4 = (radius + toothDepth * 0.5) * Math.cos(angle4);
-        const y4 = (radius + toothDepth * 0.5) * Math.sin(angle4);
-        
+
+        // Tooth tip
+        const x3 = (radius) * Math.cos(angle2);
+        const y3 = (radius) * Math.sin(angle2);
+
         // Tooth base point 2
+       
+        const x4 = baseRadius * Math.cos(angle3);
+        const y4 = baseRadius * Math.sin(angle3);
         const x5 = baseRadius * Math.cos(angle5);
         const y5 = baseRadius * Math.sin(angle5);
         
@@ -78,8 +72,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
         } else {
           shape.lineTo(x1, y1);
         }
-        
-        shape.lineTo(x2, y2);
+
         shape.lineTo(x3, y3);
         shape.lineTo(x4, y4);
         shape.lineTo(x5, y5);
