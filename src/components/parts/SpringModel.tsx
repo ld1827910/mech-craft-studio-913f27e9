@@ -33,10 +33,10 @@ export default function SpringModel({ parameters, material, autoRotate = false }
     const { radius, thickness, coils, height } = parameters;
     // Use provided values or defaults
     const tension = parameters.tension ?? 0;  
-    const resolution = parameters.resolution ?? 64;  // Higher default for smoother spring
+    const resolution = parameters.resolution ?? 128;  // Higher resolution for smoother spring
     
     // Calculate total points based on resolution and coils
-    const totalPoints = Math.max(coils * resolution, 64);
+    const totalPoints = Math.max(coils * resolution, 128);
     
     // Create points for a helical spring
     const points = [];
@@ -51,7 +51,7 @@ export default function SpringModel({ parameters, material, autoRotate = false }
       const verticalPosition = t * height - height / 2;
       
       // Dynamic radius based on tension (subtly varies for realism)
-      const dynamicRadius = radius * (1 + Math.sin(angle * 0.5) * (tension * 0.05));
+      const dynamicRadius = radius * (1 + Math.sin(angle * 0.5) * (tension * 0.03));
       
       // Create point on the helix
       const x = dynamicRadius * Math.cos(angle);
@@ -66,8 +66,8 @@ export default function SpringModel({ parameters, material, autoRotate = false }
     curve.closed = false; // Spring should not be closed
     
     // Create tube geometry with more segments for smoothness
-    const tubeSegments = Math.max(totalPoints, 128);
-    const radialSegments = Math.max(8, Math.ceil(thickness * 20)); // More detail for thicker springs
+    const tubeSegments = Math.max(totalPoints, 256); // Increased for smoother curve
+    const radialSegments = Math.max(12, Math.ceil(thickness * 24)); // More detail for thicker springs
     
     return new THREE.TubeGeometry(
       curve, 
@@ -86,7 +86,7 @@ export default function SpringModel({ parameters, material, autoRotate = false }
   });
 
   return (
-    <mesh ref={meshRef} geometry={springGeometry}>
+    <mesh ref={meshRef} geometry={springGeometry} castShadow receiveShadow>
       <meshStandardMaterial 
         color={materialColor} 
         metalness={0.8} 

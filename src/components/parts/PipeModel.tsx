@@ -14,8 +14,7 @@ interface PipeProps {
 }
 
 export default function PipeModel({ parameters, material, autoRotate = false }: PipeProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const innerMeshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   
   const materialColor = useMemo(() => {
     switch(material) {
@@ -33,54 +32,40 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
 
   // Rotation animation
   useFrame((_, delta) => {
-    if (autoRotate && meshRef.current) {
-      meshRef.current.rotation.z += delta * 0.5;
-      if (innerMeshRef.current) {
-        innerMeshRef.current.rotation.z += delta * 0.5;
-      }
+    if (autoRotate && groupRef.current) {
+      groupRef.current.rotation.z += delta * 0.5;
     }
   });
 
+  // Generate pipe geometry
+  const pipeGeometry = useMemo(() => {
+    // Create a shape for the pipe cross-section (ring)
+    const shape = new THREE.Shape();
+    shape.absarc(0, 0, radius, 0, Math.PI * 2, false); // Outer circle
+    
+    // Create the hole for the inner circle
+    const holePath = new THREE.Path();
+    holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
+    shape.holes.push(holePath);
+    
+    // Extrude settings
+    const extrudeSettings = {
+      steps: 1,
+      depth: length,
+      bevelEnabled: false
+    };
+    
+    // Create extruded geometry
+    const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    geometry.center();
+    geometry.rotateX(Math.PI / 2); // Orient correctly
+    
+    return geometry;
+  }, [radius, innerRadius, length]);
+
   return (
-    <group>
-      {/* Outer pipe */}
-      <mesh ref={meshRef} castShadow receiveShadow>
-        <cylinderGeometry 
-          args={[radius, radius, length, 32, 1, false]} 
-        />
-        <meshStandardMaterial 
-          color={materialColor} 
-          metalness={0.7} 
-          roughness={0.3}
-        />
-      </mesh>
-      
-      {/* Inner hole (creating a true hollow pipe) */}
-      <mesh ref={innerMeshRef} position={[0, 0, 0]}>
-        <cylinderGeometry 
-          args={[innerRadius, innerRadius, length + 0.05, 32, 1, false]} 
-        />
-        <meshStandardMaterial 
-          color="black"
-          opacity={0}
-          transparent={true}
-          side={THREE.BackSide}
-        />
-      </mesh>
-      
-      {/* End caps - if we want to visualize the thickness */}
-      <mesh position={[0, length/2, 0]} rotation={[Math.PI/2, 0, 0]}>
-        <ringGeometry args={[innerRadius, radius, 32]} />
-        <meshStandardMaterial 
-          color={materialColor} 
-          metalness={0.7} 
-          roughness={0.3}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-      
-      <mesh position={[0, -length/2, 0]} rotation={[Math.PI/2, 0, 0]}>
-        <ringGeometry args={[innerRadius, radius, 32]} />
+    <group ref={groupRef}>
+      <mesh castShadow receiveShadow geometry={pipeGeometry}>
         <meshStandardMaterial 
           color={materialColor} 
           metalness={0.7} 

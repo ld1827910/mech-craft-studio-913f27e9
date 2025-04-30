@@ -62,7 +62,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               coils: getParameterValue('coils', 5),
               height: getParameterValue('height', 5),
               tension: getParameterValue('tension', 0),
-              resolution: getParameterValue('resolution', 24),
+              resolution: getParameterValue('resolution', 128),  // Increased resolution for smoother spring
             }}
             material={material.id}
             autoRotate={autoRotate}
