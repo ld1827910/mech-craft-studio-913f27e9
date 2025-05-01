@@ -33,39 +33,29 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     // Create the basic gear shape
     const shape = new THREE.Shape();
     
-    // Outer circle
-    shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
-    
-    // Create a basic spur gear
+    // Create a basic spur gear with triangular teeth
     if (teeth > 0) {
-      // Remove the main shape and create a new one with teeth
-      shape.curves = [];
-      
       const toothDepth = radius * 0.15;
       const baseRadius = radius - toothDepth;
       const angleStep = (Math.PI * 2) / teeth;
       
-      // Draw the gear teeth outline
-        for (let i = 0; i < teeth; i++) {
+      // Draw the gear teeth outline with triangular teeth
+      for (let i = 0; i < teeth; i++) {
         const angle1 = i * angleStep;
         const angle2 = angle1 + angleStep / 2;
         const angle3 = angle1 + angleStep;
-        const angle5 = angle3
-
+        
         // Tooth base point 1
         const x1 = baseRadius * Math.cos(angle1);
         const y1 = baseRadius * Math.sin(angle1);
 
-        // Tooth tip
-        const x3 = (radius) * Math.cos(angle2);
-        const y3 = (radius) * Math.sin(angle2);
+        // Tooth tip (peak of triangle)
+        const x2 = radius * Math.cos(angle2);
+        const y2 = radius * Math.sin(angle2);
 
         // Tooth base point 2
-       
-        const x4 = baseRadius * Math.cos(angle3);
-        const y4 = baseRadius * Math.sin(angle3);
-        const x5 = baseRadius * Math.cos(angle5);
-        const y5 = baseRadius * Math.sin(angle5);
+        const x3 = baseRadius * Math.cos(angle3);
+        const y3 = baseRadius * Math.sin(angle3);
         
         if (i === 0) {
           shape.moveTo(x1, y1);
@@ -73,15 +63,18 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
           shape.lineTo(x1, y1);
         }
 
+        // Draw triangular tooth
+        shape.lineTo(x2, y2);
         shape.lineTo(x3, y3);
-        shape.lineTo(x4, y4);
-        shape.lineTo(x5, y5);
       }
       
       shape.closePath();
+    } else {
+      // If no teeth, just draw a circle
+      shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
     }
     
-    // Add the center hole
+    // Add the center hole - ENSURING IT WORKS CORRECTLY
     if (hole > 0) {
       const holePath = new THREE.Path();
       holePath.absarc(0, 0, hole, 0, Math.PI * 2, true);
@@ -95,7 +88,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       bevelThickness: thickness * 0.05,
       bevelSize: thickness * 0.02,
       bevelOffset: 0,
-      bevelSegments: 3
+      bevelSegments: 8 // Increased for smoothness
     };
     
     // Create the extruded geometry
@@ -127,6 +120,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
         metalness={0.6}
         roughness={0.4}
         side={THREE.DoubleSide}
+        flatShading={false}
       />
     </mesh>
   );

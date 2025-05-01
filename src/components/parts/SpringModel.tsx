@@ -33,10 +33,10 @@ export default function SpringModel({ parameters, material, autoRotate = false }
     const { radius, thickness, coils, height } = parameters;
     // Use provided values or defaults
     const tension = parameters.tension ?? 0;  
-    const resolution = parameters.resolution ?? 128;  // Higher resolution for smoother spring
+    const resolution = parameters.resolution ?? 256;  // Higher resolution for smoother spring
     
     // Calculate total points based on resolution and coils
-    const totalPoints = Math.max(coils * resolution, 128);
+    const totalPoints = Math.max(Math.floor(coils * resolution), 256);
     
     // Create points for a helical spring
     const points = [];
@@ -47,10 +47,10 @@ export default function SpringModel({ parameters, material, autoRotate = false }
       const angle = t * Math.PI * 2 * coils;
       
       // Apply tension effect (0 = normal, positive = stretched, negative = compressed)
-      const verticalSpacing = height / coils;
       const verticalPosition = t * height - height / 2;
       
-      // Dynamic radius based on tension (subtly varies for realism)
+      // Calculate spring position with tension effect
+      const tensionFactor = 1 + tension * 0.1; // Adjust tension effect
       const dynamicRadius = radius * (1 + Math.sin(angle * 0.5) * (tension * 0.03));
       
       // Create point on the helix
@@ -67,7 +67,7 @@ export default function SpringModel({ parameters, material, autoRotate = false }
     
     // Create tube geometry with more segments for smoothness
     const tubeSegments = Math.max(totalPoints, 256); // Increased for smoother curve
-    const radialSegments = Math.max(12, Math.ceil(thickness * 24)); // More detail for thicker springs
+    const radialSegments = Math.max(16, Math.ceil(thickness * 24)); // More detail for thicker springs
     
     return new THREE.TubeGeometry(
       curve, 
