@@ -41,9 +41,12 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
         return parameters.filter(p => ['radius', 'thickness', 'coils', 'height', 'tension', 
                                       'resolution', 'waveAmplitude', 'radialSegments', 'taper'].includes(p.id));
       case 'bolt':
-        return parameters.filter(p => ['headRadius', 'shaftRadius', 'length'].includes(p.id));
+        return parameters.filter(p => ['headRadius', 'shaftRadius', 'length', 'headHeight', 
+                                      'threadDepth', 'threadPitch', 'threadSegments', 'headType', 
+                                      'countersink'].includes(p.id));
       case 'nut':
-        return parameters.filter(p => ['radius', 'height', 'holeRadius'].includes(p.id));
+        return parameters.filter(p => ['radius', 'height', 'holeRadius', 'chamferSize', 
+                                      'sides', 'texture'].includes(p.id));
       default:
         return [];
     }
@@ -52,14 +55,23 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   const partTitle = selectedPart.charAt(0).toUpperCase() + selectedPart.slice(1);
   
   // Determine if the current part supports auto-rotation
-  // Currently all parts except 'nut' support auto-rotation
-  const supportsAutoRotation = selectedPart !== 'nut';
+  // All parts now support auto-rotation
+  const supportsAutoRotation = true;
 
   // Group parameters by category
   const groupParameters = (params: PartParameter[]) => {
     // Basic dimensions first
-    const basicParams = ['radius', 'thickness', 'length', 'height', 'hole', 'teeth', 'coils', 'headRadius', 'shaftRadius', 'holeRadius'];
-    const advancedParams = ['toothDepthRatio', 'toothWidth', 'bevelSize', 'segments', 'taper', 'tension', 'resolution', 'waveAmplitude', 'radialSegments'];
+    const basicParams = [
+      'radius', 'thickness', 'length', 'height', 'hole', 'teeth', 'coils', 
+      'headRadius', 'shaftRadius', 'holeRadius', 'headHeight', 'sides'
+    ];
+    
+    const advancedParams = [
+      'toothDepthRatio', 'toothWidth', 'bevelSize', 'segments', 'taper', 
+      'tension', 'resolution', 'waveAmplitude', 'radialSegments',
+      'threadDepth', 'threadPitch', 'threadSegments', 'headType', 
+      'countersink', 'chamferSize', 'texture'
+    ];
     
     const basic = params.filter(p => basicParams.includes(p.id));
     const advanced = params.filter(p => advancedParams.includes(p.id));

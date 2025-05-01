@@ -1,3 +1,4 @@
+
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Grid } from '@react-three/drei';
@@ -84,6 +85,12 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               headRadius: getParameterValue('headRadius', 0.8),
               shaftRadius: getParameterValue('shaftRadius', 0.4),
               length: getParameterValue('length', 3),
+              headHeight: getParameterValue('headHeight', 0.6),
+              threadDepth: getParameterValue('threadDepth', 0.08),
+              threadPitch: getParameterValue('threadPitch', 0.2),
+              threadSegments: getParameterValue('threadSegments', 32),
+              headType: getParameterValue('headType', 0),
+              countersink: getParameterValue('countersink', 0),
             }}
             material={material.id}
             autoRotate={autoRotate}
@@ -96,8 +103,12 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               radius: getParameterValue('radius', 0.8),
               height: getParameterValue('height', 0.6),
               holeRadius: getParameterValue('holeRadius', 0.4),
+              chamferSize: getParameterValue('chamferSize', 0.1),
+              sides: getParameterValue('sides', 6),
+              texture: getParameterValue('texture', 0),
             }}
             material={material.id}
+            autoRotate={autoRotate}
           />
         );
       default:
