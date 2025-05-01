@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -6,7 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { PartParameter, Material } from '@/hooks/useMockGraphQL';
-import { Hexagon, CircleSquare, Circle } from 'lucide-react';
+import { Hexagon, Circle, Circle as CircleIcon } from 'lucide-react';
 
 interface ConfigPanelProps {
   parameters: PartParameter[];
@@ -104,7 +103,7 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               <span>Hex</span>
             </ToggleGroupItem>
             <ToggleGroupItem value="1" aria-label="Socket Head">
-              <CircleSquare className="h-4 w-4 mr-1" />
+              <CircleIcon className="h-4 w-4 mr-1" />
               <span>Socket</span>
             </ToggleGroupItem>
             <ToggleGroupItem value="2" aria-label="Button Head">
