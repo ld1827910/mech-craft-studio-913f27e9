@@ -4,7 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { PartParameter, Material } from '@/hooks/useMockGraphQL';
+import { Hexagon, CircleSquare, Circle } from 'lucide-react';
 
 interface ConfigPanelProps {
   parameters: PartParameter[];
@@ -81,6 +83,92 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
   const { basic, advanced } = groupParameters(getPartParameters());
 
+  // Create specialized controls for certain parameter types
+  const renderSpecializedControl = (param: PartParameter) => {
+    // Head type toggle for bolt
+    if (param.id === 'headType') {
+      const headType = param.value;
+      return (
+        <div className="mb-6">
+          <Label className="text-sm font-medium mb-2 block">Head Type</Label>
+          <ToggleGroup 
+            type="single" 
+            value={headType.toString()} 
+            onValueChange={(value) => {
+              if (value) onParameterChange(param.id, parseInt(value, 10));
+            }}
+            className="justify-start"
+          >
+            <ToggleGroupItem value="0" aria-label="Hex Head">
+              <Hexagon className="h-4 w-4 mr-1" />
+              <span>Hex</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="1" aria-label="Socket Head">
+              <CircleSquare className="h-4 w-4 mr-1" />
+              <span>Socket</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="2" aria-label="Button Head">
+              <Circle className="h-4 w-4 mr-1" />
+              <span>Button</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      );
+    }
+    
+    // Sides toggle for nut
+    if (param.id === 'sides') {
+      const sides = param.value;
+      return (
+        <div className="mb-6">
+          <Label className="text-sm font-medium mb-2 block">Sides</Label>
+          <ToggleGroup 
+            type="single" 
+            value={sides.toString()} 
+            onValueChange={(value) => {
+              if (value) onParameterChange(param.id, parseInt(value, 10));
+            }}
+            className="justify-start"
+          >
+            <ToggleGroupItem value="4" aria-label="Square Nut">
+              <span>4</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="6" aria-label="Hex Nut">
+              <span>6</span>
+            </ToggleGroupItem>
+            <ToggleGroupItem value="8" aria-label="Octagonal Nut">
+              <span>8</span>
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+      );
+    }
+    
+    // Default slider control
+    return (
+      <div key={param.id} className="mb-6">
+        <div className="flex justify-between mb-2">
+          <Label htmlFor={param.id} className="text-sm font-medium">
+            {param.name}
+          </Label>
+          <span className="text-sm font-mono text-mechanical-gray">
+            {param.value.toFixed(1)}
+          </span>
+        </div>
+        <Slider
+          id={param.id}
+          min={param.min}
+          max={param.max}
+          step={param.step}
+          value={[param.value]}
+          onValueChange={(values) => onParameterChange(param.id, values[0])}
+          className="mt-2"
+          aria-label={param.name}
+        />
+      </div>
+    );
+  };
+
   return (
     <Card className="w-full h-full overflow-auto">
       <CardHeader className="bg-mechanical-blue text-white">
@@ -114,55 +202,13 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
 
               <div className='mt-6'>
                 <h3 className="text-lg font-medium mb-4">Basic Dimensions</h3>
-                {basic.map((param) => (
-                  <div key={param.id} className="mb-6">
-                    <div className="flex justify-between mb-2">
-                      <Label htmlFor={param.id} className="text-sm font-medium">
-                        {param.name}
-                      </Label>
-                      <span className="text-sm font-mono text-mechanical-gray">
-                        {param.value.toFixed(1)}
-                      </span>
-                    </div>
-                    <Slider
-                      id={param.id}
-                      min={param.min}
-                      max={param.max}
-                      step={param.step}
-                      value={[param.value]}
-                      onValueChange={(values) => onParameterChange(param.id, values[0])}
-                      className="mt-2"
-                      aria-label={param.name}
-                    />
-                  </div>
-                ))}              
+                {basic.map((param) => renderSpecializedControl(param))}              
               </div>
 
               {advanced.length > 0 && (
                 <div className='mt-6 pt-4 border-t'>
                   <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
-                  {advanced.map((param) => (
-                    <div key={param.id} className="mb-6">
-                      <div className="flex justify-between mb-2">
-                        <Label htmlFor={param.id} className="text-sm font-medium">
-                          {param.name}
-                        </Label>
-                        <span className="text-sm font-mono text-mechanical-gray">
-                          {param.value.toFixed(2)}
-                        </span>
-                      </div>
-                      <Slider
-                        id={param.id}
-                        min={param.min}
-                        max={param.max}
-                        step={param.step}
-                        value={[param.value]}
-                        onValueChange={(values) => onParameterChange(param.id, values[0])}
-                        className="mt-2"
-                        aria-label={param.name}
-                      />
-                    </div>
-                  ))}              
+                  {advanced.map((param) => renderSpecializedControl(param))}              
                 </div>
               )}
 
