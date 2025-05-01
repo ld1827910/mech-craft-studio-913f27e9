@@ -32,11 +32,14 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   const getPartParameters = () => {
     switch(selectedPart) {
       case 'gear':
-        return parameters.filter(p => ['teeth', 'radius', 'thickness', 'hole'].includes(p.id));
+        return parameters.filter(p => ['teeth', 'radius', 'thickness', 'hole', 
+                                      'toothDepthRatio', 'toothWidth', 'bevelSize'].includes(p.id));
       case 'pipe':
-        return parameters.filter(p => ['length', 'radius', 'thickness'].includes(p.id));
+        return parameters.filter(p => ['length', 'radius', 'thickness', 
+                                      'segments', 'bevelSize', 'taper'].includes(p.id));
       case 'spring':
-        return parameters.filter(p => ['radius', 'thickness', 'coils', 'height'].includes(p.id));
+        return parameters.filter(p => ['radius', 'thickness', 'coils', 'height', 'tension', 
+                                      'resolution', 'waveAmplitude', 'radialSegments', 'taper'].includes(p.id));
       case 'bolt':
         return parameters.filter(p => ['headRadius', 'shaftRadius', 'length'].includes(p.id));
       case 'nut':
@@ -51,6 +54,20 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   // Determine if the current part supports auto-rotation
   // Currently all parts except 'nut' support auto-rotation
   const supportsAutoRotation = selectedPart !== 'nut';
+
+  // Group parameters by category
+  const groupParameters = (params: PartParameter[]) => {
+    // Basic dimensions first
+    const basicParams = ['radius', 'thickness', 'length', 'height', 'hole', 'teeth', 'coils', 'headRadius', 'shaftRadius', 'holeRadius'];
+    const advancedParams = ['toothDepthRatio', 'toothWidth', 'bevelSize', 'segments', 'taper', 'tension', 'resolution', 'waveAmplitude', 'radialSegments'];
+    
+    const basic = params.filter(p => basicParams.includes(p.id));
+    const advanced = params.filter(p => advancedParams.includes(p.id));
+    
+    return { basic, advanced };
+  };
+
+  const { basic, advanced } = groupParameters(getPartParameters());
 
   return (
     <Card className="w-full h-full overflow-auto">
@@ -84,8 +101,8 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
               )}
 
               <div className='mt-6'>
-                <h3 className="text-lg font-medium mb-4">Dimensions</h3>
-                {getPartParameters().map((param) => (
+                <h3 className="text-lg font-medium mb-4">Basic Dimensions</h3>
+                {basic.map((param) => (
                   <div key={param.id} className="mb-6">
                     <div className="flex justify-between mb-2">
                       <Label htmlFor={param.id} className="text-sm font-medium">
@@ -108,42 +125,71 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
                   </div>
                 ))}              
               </div>
-              <div className='mt-6'>
-                  <h3 className="text-lg font-medium mb-4">Material</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {materials.map((material) => (
-                      <button
-                        key={material.id}
-                        onClick={() => onMaterialChange(material)}
-                        className={`p-3 rounded border-2 transition-all ${
-                          selectedMaterial.id === material.id
-                            ? 'border-mechanical-blue bg-mechanical-lightblue/20'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        aria-pressed={selectedMaterial.id === material.id}
-                      >
-                        <div className="flex items-center">
-                          <div
-                            className="w-6 h-6 rounded-full mr-2"
-                            style={{ backgroundColor: material.color }}
-                            aria-hidden="true"
-                          ></div>
-                          <span>{material.name}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
+
+              {advanced.length > 0 && (
+                <div className='mt-6 pt-4 border-t'>
+                  <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
+                  {advanced.map((param) => (
+                    <div key={param.id} className="mb-6">
+                      <div className="flex justify-between mb-2">
+                        <Label htmlFor={param.id} className="text-sm font-medium">
+                          {param.name}
+                        </Label>
+                        <span className="text-sm font-mono text-mechanical-gray">
+                          {param.value.toFixed(2)}
+                        </span>
+                      </div>
+                      <Slider
+                        id={param.id}
+                        min={param.min}
+                        max={param.max}
+                        step={param.step}
+                        value={[param.value]}
+                        onValueChange={(values) => onParameterChange(param.id, values[0])}
+                        className="mt-2"
+                        aria-label={param.name}
+                      />
+                    </div>
+                  ))}              
+                </div>
+              )}
+
+              <div className='mt-6 pt-4 border-t'>
+                <h3 className="text-lg font-medium mb-4">Material</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {materials.map((material) => (
+                    <button
+                      key={material.id}
+                      onClick={() => onMaterialChange(material)}
+                      className={`p-3 rounded border-2 transition-all ${
+                        selectedMaterial.id === material.id
+                          ? 'border-mechanical-blue bg-mechanical-lightblue/20'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                      aria-pressed={selectedMaterial.id === material.id}
+                    >
+                      <div className="flex items-center">
+                        <div
+                          className="w-6 h-6 rounded-full mr-2"
+                          style={{ backgroundColor: material.color }}
+                          aria-hidden="true"
+                        ></div>
+                        <span>{material.name}</span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
               </div>
-  
-              <div className="mt-8 pt-4 border-t">
-                <button
-                  className="w-full bg-mechanical-blue hover:bg-mechanical-darkblue text-white py-3 rounded font-medium transition-colors"
-                >
-                  Export Configuration
-                </button>
-              </div>
-            </>
+            </div>
+
+            <div className="mt-8 pt-4 border-t">
+              <button
+                className="w-full bg-mechanical-blue hover:bg-mechanical-darkblue text-white py-3 rounded font-medium transition-colors"
+              >
+                Export Configuration
+              </button>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

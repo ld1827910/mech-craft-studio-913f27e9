@@ -36,6 +36,9 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               radius: getParameterValue('radius', 5),
               thickness: getParameterValue('thickness', 1),
               hole: getParameterValue('hole', 1),
+              toothDepthRatio: getParameterValue('toothDepthRatio', 0.15),
+              toothWidth: getParameterValue('toothWidth', 0.5),
+              bevelSize: getParameterValue('bevelSize', 0.02),
             }}
             material={material.id}
             autoRotate={autoRotate}
@@ -48,6 +51,9 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               length: getParameterValue('length', 5),
               radius: getParameterValue('radius', 1),
               thickness: getParameterValue('thickness', 0.2),
+              segments: getParameterValue('segments', 32),
+              bevelSize: getParameterValue('bevelSize', 0.1),
+              taper: getParameterValue('taper', 0),
             }}
             material={material.id}
             autoRotate={autoRotate}
@@ -62,7 +68,10 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
               coils: getParameterValue('coils', 5),
               height: getParameterValue('height', 5),
               tension: getParameterValue('tension', 0),
-              resolution: getParameterValue('resolution', 256),  // Increased resolution for smoother spring
+              resolution: getParameterValue('resolution', 256),
+              waveAmplitude: getParameterValue('waveAmplitude', 0),
+              radialSegments: getParameterValue('radialSegments', 16),
+              taper: getParameterValue('taper', 0),
             }}
             material={material.id}
             autoRotate={autoRotate}

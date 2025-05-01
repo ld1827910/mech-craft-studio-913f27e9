@@ -8,6 +8,9 @@ interface PipeProps {
     length: number;
     radius: number;
     thickness: number;
+    segments?: number;     // For controlling smoothness
+    bevelSize?: number;    // Controls end bevels
+    taper?: number;        // For tapered pipes (0 = uniform)
   };
   material: string;
   autoRotate?: boolean;
@@ -26,87 +29,30 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
     }
   }, [material]);
 
-  // Calculate dimensions - ensure innerRadius works correctly with thickness
-  const { length, radius, thickness } = parameters;
-  
   // Generate pipe geometry with proper hollow center
   const pipeGeometry = useMemo(() => {
-    // Ensure inner radius is calculated correctly from thickness
-    const innerRadius = Math.max(radius - thickness, 0.1);
+    // Extract parameters with defaults
+    const { length, radius, thickness } = parameters;
+    const segments = parameters.segments ?? 32;      // Higher for smoother surfaces
+    const bevelSize = parameters.bevelSize ?? 0.1;   // Bevel effect at pipe ends
+    const taper = parameters.taper ?? 0;             // Taper effect (0-1)
     
-    // Create a cylinder geometry for the outer pipe
-    const outerCylinder = new THREE.CylinderGeometry(
-      radius,           // radiusTop
-      radius,           // radiusBottom
-      length,           // height
-      32,               // radialSegments (increased for smoothness)
-      1,                // heightSegments
-      false             // openEnded
-    );
+    // Ensure thickness is valid - cap it at 90% of radius
+    const maxThickness = radius * 0.9;
+    const safeThickness = thickness > maxThickness ? maxThickness : thickness;
     
-    // Create a cylinder geometry for the inner hole
-    const innerCylinder = new THREE.CylinderGeometry(
-      innerRadius,      // radiusTop
-      innerRadius,      // radiusBottom
-      length + 0.2,     // height (slightly larger to ensure complete subtraction)
-      32,               // radialSegments (increased for smoothness)
-      1,                // heightSegments
-      false             // openEnded
-    );
+    // Calculate inner radius
+    const innerRadius = Math.max(radius - safeThickness, 0.1);
     
-    // Create BSP objects for CSG operations
-    const outerBSP = new THREE.Mesh(outerCylinder);
-    const innerBSP = new THREE.Mesh(innerCylinder);
+    // For tapered pipes, calculate dimensions for both ends
+    const topRadius = radius * (1 + taper * 0.5);
+    const bottomRadius = radius * (1 - taper * 0.5);
+    const topInner = innerRadius * (1 + taper * 0.5);
+    const bottomInner = innerRadius * (1 - taper * 0.5);
     
-    // Convert to BufferGeometry for three.js
-    // Since we can't use CSG directly, we'll simulate a hollow pipe
-    
-    // Create a tube geometry instead (more reliable for hollow cylinders)
-    const path = new THREE.LineCurve3(
-      new THREE.Vector3(0, -length/2, 0),
-      new THREE.Vector3(0, length/2, 0)
-    );
-    
-    const geometry = new THREE.TubeGeometry(
-      path,
-      1,              // tubularSegments
-      radius,         // radius
-      32,             // radialSegments (increased for smoothness)
-      false           // closed
-    );
-    
-    // Create custom geometry to represent pipe with thickness
-    const tubeGeometry = new THREE.CylinderGeometry(
-      radius,         // top outer radius
-      radius,         // bottom outer radius
-      length,         // height
-      32,             // radialSegments (increased for smoothness)
-      1,              // heightSegments
-      true            // openEnded (true for hollow)
-    );
-    
-    // Create a second cylinder for the inner part
-    const holeGeometry = new THREE.CylinderGeometry(
-      innerRadius,    // top inner radius
-      innerRadius,    // bottom inner radius
-      length + 0.1,   // height (slightly taller to avoid artifacts)
-      32,             // radialSegments (increased for smoothness)
-      1,              // heightSegments
-      true            // openEnded
-    );
-    
-    // Use buffer geometry instead to create a proper hollow pipe
-    const pipeBufferGeometry = new THREE.CylinderGeometry(
-      radius,           // radiusTop (outer)
-      radius,           // radiusBottom (outer)
-      length,           // height
-      32,               // radialSegments (increased for smoothness)
-      1,                // heightSegments
-      true              // openEnded
-    );
-    
-    // Return a shape that represents the proper pipe
+    // Create a shape for the pipe cross-section (ring shape)
     const shape = new THREE.Shape();
+    
     // Draw outer circle
     shape.absarc(0, 0, radius, 0, Math.PI * 2, false);
     
@@ -115,19 +61,30 @@ export default function PipeModel({ parameters, material, autoRotate = false }: 
     holePath.absarc(0, 0, innerRadius, 0, Math.PI * 2, true);
     shape.holes.push(holePath);
     
-    // Extrude the shape to create a 3D pipe
+    // Extrude settings with bevels for smoother appearance
     const extrudeSettings = {
       depth: length,
-      bevelEnabled: false,
-      steps: 2
+      bevelEnabled: true,
+      bevelThickness: length * bevelSize * 0.1,
+      bevelSize: radius * bevelSize * 0.2,
+      bevelOffset: 0,
+      bevelSegments: Math.max(3, Math.floor(segments / 8)),
+      curveSegments: segments,
+      steps: Math.max(1, Math.floor(length / 2))
     };
     
+    // Extrude the shape to create a 3D pipe
     const extrudedGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    
+    // Center and orient correctly
     extrudedGeometry.center();
-    extrudedGeometry.rotateX(Math.PI / 2); // Properly orient the pipe
+    extrudedGeometry.rotateX(Math.PI / 2);
+    
+    // Compute vertex normals for smoother shading
+    extrudedGeometry.computeVertexNormals();
     
     return extrudedGeometry;
-  }, [radius, thickness, length]);
+  }, [parameters]);
 
   // Rotation animation
   useFrame((_, delta) => {
