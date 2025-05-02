@@ -6,6 +6,8 @@ import { useMockGraphQL, PartParameter, Material } from '@/hooks/useMockGraphQL'
 import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { Cog, CircleDot, Cylinder, Bolt, Hexagon } from 'lucide-react';
+import { Separator } from './ui/separator';
+import { useToast } from '@/hooks/use-toast';
 
 const Configurator: React.FC = () => {
   const { loading, error, data } = useMockGraphQL();
@@ -17,7 +19,8 @@ const Configurator: React.FC = () => {
     color: '#A5A5A5' 
   });
   const [selectedPart, setSelectedPart] = useState('gear');
-  const [autoRotate, setAutoRotate] = useState(false); // Changed to false (off by default)
+  const [autoRotate, setAutoRotate] = useState(false);
+  const { toast } = useToast();
 
   React.useEffect(() => {
     if (data) {
@@ -37,6 +40,12 @@ const Configurator: React.FC = () => {
 
   const handleMaterialChange = (material: Material) => {
     setSelectedMaterial(material);
+    
+    toast({
+      title: "Material Updated",
+      description: `Changed material to ${material.name}`,
+      duration: 2000,
+    });
   };
 
   if (error) {
@@ -48,36 +57,44 @@ const Configurator: React.FC = () => {
   }
 
   const partOptions = [
-    { id: 'gear', name: 'Gear', icon: Cog },
-    { id: 'pipe', name: 'Pipe', icon: Cylinder },
-    { id: 'spring', name: 'Spring', icon: CircleDot },
-    { id: 'bolt', name: 'Bolt', icon: Bolt },
-    { id: 'nut', name: 'Nut', icon: Hexagon },
+    { id: 'gear', name: 'Gear', icon: Cog, description: 'Configure gear teeth, radius and other parameters' },
+    { id: 'pipe', name: 'Pipe', icon: Cylinder, description: 'Design cylindrical pipes with custom dimensions' },
+    { id: 'spring', name: 'Spring', icon: CircleDot, description: 'Create springs with adjustable coil and tension settings' },
+    { id: 'bolt', name: 'Bolt', icon: Bolt, description: 'Customize bolts with different head types and thread patterns' },
+    { id: 'nut', name: 'Nut', icon: Hexagon, description: 'Design nuts with variable sides and textures' },
   ];
 
   return (
-    <div className="container mx-auto py-6 px-4 md:px-6">
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Select Part Type</h2>
-        <RadioGroup
-          value={selectedPart}
-          onValueChange={setSelectedPart}
-          className="grid grid-cols-2 md:grid-cols-5 gap-4"
-        >
+    <div className="container mx-auto py-10 px-4 md:px-6">
+      <div className="bg-white p-6 rounded-xl shadow-md mb-10">
+        <h2 className="text-2xl font-bold mb-6">Select Component Type</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {partOptions.map((part) => (
-            <div key={part.id} className="flex items-center space-x-2">
-              <RadioGroupItem value={part.id} id={part.id} />
-              <Label htmlFor={part.id} className="flex items-center gap-2 cursor-pointer">
+            <div 
+              key={part.id}
+              onClick={() => setSelectedPart(part.id)} 
+              className={`flex flex-col items-center p-4 rounded-lg cursor-pointer border-2 transition-all ${
+                selectedPart === part.id 
+                  ? 'border-mechanical-blue bg-mechanical-blue/5'
+                  : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
+                selectedPart === part.id 
+                  ? 'bg-mechanical-blue text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
                 <part.icon className="w-5 h-5" />
-                {part.name}
-              </Label>
+              </div>
+              <span className="font-medium">{part.name}</span>
+              <span className="text-xs text-center mt-1 text-gray-500 hidden md:block">{part.description}</span>
             </div>
           ))}
-        </RadioGroup>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="w-full md:w-2/3 h-[500px] md:h-[600px]">
+      <div id="3d-configurator" className="flex flex-col lg:flex-row gap-6">
+        <div className="w-full lg:w-2/3 h-[500px] md:h-[600px]">
           <ThreeScene 
             parameters={parameters} 
             material={selectedMaterial}
@@ -86,7 +103,7 @@ const Configurator: React.FC = () => {
             autoRotate={autoRotate} 
           />
         </div>
-        <div className="w-full md:w-1/3">
+        <div className="w-full lg:w-1/3">
           <ConfigPanel
             parameters={parameters}
             materials={materials}
@@ -101,23 +118,45 @@ const Configurator: React.FC = () => {
         </div>
       </div>
       
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold mb-4">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">1</div>
-            <h3 className="text-lg font-semibold mb-2">Customize Parameters</h3>
-            <p className="text-gray-600">Adjust dimensions and specifications to match your exact requirements.</p>
+      <div id="how-it-works" className="mt-16 scroll-mt-16">
+        <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div className="w-16 h-16 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-6">1</div>
+            <h3 className="text-xl font-semibold mb-3">Customize Parameters</h3>
+            <p className="text-gray-600">Fine-tune dimensions and specifications with precision controls to match your exact engineering requirements.</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">2</div>
-            <h3 className="text-lg font-semibold mb-2">Choose Materials</h3>
-            <p className="text-gray-600">Select from various materials with different properties and appearances.</p>
+          <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div className="w-16 h-16 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-6">2</div>
+            <h3 className="text-xl font-semibold mb-3">Select Materials</h3>
+            <p className="text-gray-600">Choose from various industry-standard materials with different mechanical properties and visual appearances.</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="w-12 h-12 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-4">3</div>
-            <h3 className="text-lg font-semibold mb-2">Export Design</h3>
-            <p className="text-gray-600">Save your configuration or request a quote for manufacturing.</p>
+          <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+            <div className="w-16 h-16 bg-mechanical-blue flex items-center justify-center rounded-full text-white font-bold mb-6">3</div>
+            <h3 className="text-xl font-semibold mb-3">Export & Manufacture</h3>
+            <p className="text-gray-600">Download your custom design for 3D printing or request a manufacturing quote for production-grade components.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-16 bg-gray-100 p-8 rounded-xl">
+        <h2 className="text-2xl font-bold mb-6 text-center">Technical Specifications</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Precision Engineering</h3>
+            <p className="text-gray-600">Our configurator ensures all components meet industry standards with tolerances within ±0.1mm for perfect fitment.</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Material Properties</h3>
+            <p className="text-gray-600">Material selection includes density, tensile strength, and thermal properties to ensure optimal performance.</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Real-time Visualization</h3>
+            <p className="text-gray-600">Inspect your components from any angle with our interactive 3D viewer powered by advanced WebGL technology.</p>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Manufacturing Ready</h3>
+            <p className="text-gray-600">Export designs in industry-standard formats compatible with CNC machines and 3D printers.</p>
           </div>
         </div>
       </div>
