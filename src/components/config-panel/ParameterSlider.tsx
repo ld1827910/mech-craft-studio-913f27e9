@@ -48,10 +48,9 @@ const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParamete
       countersink: "Amount of countersinking on socket heads",
       
       // Nut parameters
-      height: "Overall height of the nut",
+      sides: "Number of sides (4=square, 6=hex, 8=octagonal)",
       holeRadius: "Radius of the center hole",
       chamferSize: "Size of the edge chamfer",
-      sides: "Number of sides (4=square, 6=hex, 8=octagonal)",
       texture: "Surface texture roughness"
     };
     
