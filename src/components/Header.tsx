@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Cog, Download, Share2, BookOpen, Moon, Sun, Search } from 'lucide-react';
+import { Download, Share2, BookOpen, Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -13,23 +13,16 @@ const Header: React.FC = () => {
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <div className="bg-white rounded-full p-1.5">
-            <Cog className="h-6 w-6 text-mechanical-blue" />
+            <svg className="h-6 w-6 text-mechanical-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 1 0 0-11zM5 12a7 7 0 1 1 14 0 7 7 0 0 1-14 0z"></path>
+              <path d="M12 9v3l1.5 1.5"></path>
+              <path d="M16.51 17.35l-.35 3.83a2 2 0 0 1-2 1.82H9.83a2 2 0 0 1-2-1.82l-.35-3.83m.01-10.7.35-3.83A2 2 0 0 1 9.83 1h4.35a2 2 0 0 1 2 1.82l.35 3.83"></path>
+            </svg>
           </div>
           <h1 className="font-bold text-xl md:text-2xl tracking-tight">MechCraft Studio</h1>
         </div>
 
         <div className="flex items-center space-x-2">
-          <div className="mr-2 hidden md:flex">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search parts..." 
-                className="pl-8 pr-4 py-1 rounded-md border border-white/20 bg-white/10 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50"
-              />
-            </div>
-          </div>
-
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

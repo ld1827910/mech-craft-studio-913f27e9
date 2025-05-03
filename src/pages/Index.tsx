@@ -3,15 +3,10 @@ import React from 'react';
 import Header from '@/components/Header';
 import Configurator from '@/components/Configurator';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 import { 
   Code, 
-  History, 
-  Image, 
   Layers, 
   Package,
-  Scale,
   Settings
 } from 'lucide-react';
 
@@ -29,37 +24,12 @@ const Index: React.FC = () => {
             <p className="text-xl md:text-2xl md:w-3/4 mx-auto opacity-90 mb-8">
               Design customized mechanical components with engineering-grade precision
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <a 
-                href="#configurator" 
-                className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-              >
-                Start Configuring
-              </a>
-              
-              <div className="flex gap-2">
-                <Link to="/gallery">
-                  <Button variant="outline" className="border-white/50 text-white hover:bg-white/10">
-                    <Image className="mr-2 h-4 w-4" />
-                    Browse Gallery
-                  </Button>
-                </Link>
-                
-                <Link to="/compare">
-                  <Button variant="outline" className="border-white/50 text-white hover:bg-white/10">
-                    <Scale className="mr-2 h-4 w-4" />
-                    Compare Materials
-                  </Button>
-                </Link>
-                
-                <Link to="/history">
-                  <Button variant="outline" className="border-white/50 text-white hover:bg-white/10">
-                    <History className="mr-2 h-4 w-4" />
-                    My Designs
-                  </Button>
-                </Link>
-              </div>
-            </div>
+            <a 
+              href="#configurator" 
+              className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+            >
+              Start Configuring
+            </a>
           </div>
         </div>
         

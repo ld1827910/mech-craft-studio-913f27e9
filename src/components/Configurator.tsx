@@ -3,13 +3,9 @@ import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
 import { useMockGraphQL, PartParameter, Material } from '@/hooks/useMockGraphQL';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import { Label } from './ui/label';
-import { Cog, CircleDot, Cylinder, Bolt, Hexagon, Link, History } from 'lucide-react';
-import { Separator } from './ui/separator';
+import { Cog, CircleDot, Cylinder, Bolt, Hexagon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
-import { Link as RouterLink } from 'react-router-dom';
 
 const Configurator: React.FC = () => {
   const { loading, error, data } = useMockGraphQL();
@@ -23,8 +19,6 @@ const Configurator: React.FC = () => {
   const [selectedPart, setSelectedPart] = useState('gear');
   const [autoRotate, setAutoRotate] = useState(false);
   const { toast } = useToast();
-  
-  const [savedDesigns, setSavedDesigns] = useState<number>(4); // Mock data - number of saved designs
 
   React.useEffect(() => {
     if (data) {
@@ -53,7 +47,6 @@ const Configurator: React.FC = () => {
   };
   
   const handleSaveDesign = () => {
-    setSavedDesigns(prev => prev + 1);
     toast({
       title: "Design Saved",
       description: "Your design has been saved to your history",
@@ -83,18 +76,6 @@ const Configurator: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold">Select Component Type</h2>
           <div className="flex gap-2">
-            <RouterLink to="/gallery">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Link className="h-4 w-4" />
-                <span>Gallery</span>
-              </Button>
-            </RouterLink>
-            <RouterLink to="/history">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <History className="h-4 w-4" />
-                <span>History ({savedDesigns})</span>
-              </Button>
-            </RouterLink>
             <Button variant="outline" size="sm" onClick={handleSaveDesign}>
               Save Design
             </Button>
