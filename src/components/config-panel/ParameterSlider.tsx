@@ -5,6 +5,7 @@ import { Slider } from '@/components/ui/slider';
 import { PartParameter } from '@/hooks/useMockGraphQL';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
+import { useUnits } from '@/hooks/useUnits';
 
 interface ParameterSliderProps {
   parameter: PartParameter;
@@ -12,6 +13,8 @@ interface ParameterSliderProps {
 }
 
 const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParameterChange }) => {
+  const { displayValue, displayUnit } = useUnits();
+  
   // Helper function to get description for parameters
   const getParameterDescription = (id: string) => {
     const descriptions: Record<string, string> = {
@@ -56,13 +59,16 @@ const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParamete
     
     return descriptions[id] || "Adjust parameter value";
   };
+
+  // Get units for specific parameters
+  const needsUnits = ['radius', 'thickness', 'hole', 'length', 'height', 'headRadius', 'shaftRadius', 'headHeight', 'holeRadius'].includes(parameter.id);
   
   // Calculate percentage for the progress bar
   const valuePercentage = ((parameter.value - parameter.min) / (parameter.max - parameter.min)) * 100;
   
   return (
-    <div className="mb-6">
-      <div className="flex justify-between mb-2">
+    <div className="mb-5">
+      <div className="flex justify-between mb-1">
         <div className="flex items-center gap-1">
           <Label htmlFor={parameter.id} className="text-sm font-medium">
             {parameter.name}
@@ -74,7 +80,7 @@ const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParamete
                   <HelpCircle className="h-4 w-4 text-mechanical-lightblue" />
                 </span>
               </TooltipTrigger>
-              <TooltipContent side="right" align="start" className="max-w-xs bg-white dark:bg-gray-800 p-3 shadow-lg border rounded-md">
+              <TooltipContent side="right" align="start" className="max-w-xs bg-white dark:bg-gray-800 p-2 shadow border rounded-md">
                 <p className="font-medium">{getParameterDescription(parameter.id)}</p>
                 <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Range: {parameter.min} - {parameter.max}
@@ -83,15 +89,16 @@ const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParamete
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <span className="px-2 py-1 bg-mechanical-blue/10 rounded text-sm font-mono text-mechanical-blue">
-            {parameter.value.toFixed(1)}
+            {displayValue(parameter.value, needsUnits)}
+            {needsUnits && <span className="ml-1 text-xs">{displayUnit()}</span>}
           </span>
         </div>
       </div>
       
       <div className="relative mt-1">
-        <div className="absolute inset-0 h-2 bg-mechanical-lightgray/20 rounded-full" />
+        <div className="absolute inset-0 h-2 bg-gray-100 rounded-full" />
         <div 
           className="absolute inset-y-0 left-0 h-2 bg-mechanical-blue/30 rounded-full" 
           style={{ width: `${valuePercentage}%` }}
@@ -108,8 +115,8 @@ const ParameterSlider: React.FC<ParameterSliderProps> = ({ parameter, onParamete
         />
       </div>
       <div className="flex justify-between mt-1">
-        <span className="text-xs text-mechanical-gray">{parameter.min}</span>
-        <span className="text-xs text-mechanical-gray">{parameter.max}</span>
+        <span className="text-xs text-gray-500">{parameter.min}</span>
+        <span className="text-xs text-gray-500">{parameter.max}</span>
       </div>
     </div>
   );

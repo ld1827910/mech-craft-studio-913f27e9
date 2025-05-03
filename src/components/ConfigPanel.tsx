@@ -11,6 +11,7 @@ import SpringControls from './config-panel/SpringControls';
 import BoltControls from './config-panel/BoltControls';
 import NutControls from './config-panel/NutControls';
 import CollapsibleSection from './config-panel/CollapsibleSection';
+import UnitToggle from './config-panel/UnitToggle';
 
 interface ConfigPanelProps {
   parameters: PartParameter[];
@@ -79,14 +80,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   };
 
   return (
-    <Card className="w-full h-full overflow-auto shadow-lg border-mechanical-blue/10">
+    <Card className="w-full h-full overflow-auto shadow-lg border-gray-200">
       <CardHeader className="bg-mechanical-blue text-white sticky top-0 z-10">
-        <CardTitle className="text-xl flex items-center">
-          <span className="flex-1">{partTitle} Configuration</span>
-          <AutoRotateToggle 
-            autoRotate={autoRotate} 
-            onAutoRotateChange={onAutoRotateChange} 
-          />
+        <CardTitle className="text-xl flex items-center justify-between">
+          <span>{partTitle} Configuration</span>
+          <div className="flex items-center gap-3">
+            <UnitToggle />
+            <AutoRotateToggle 
+              autoRotate={autoRotate} 
+              onAutoRotateChange={onAutoRotateChange} 
+            />
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4 max-h-[calc(100vh-200px)] overflow-auto">
