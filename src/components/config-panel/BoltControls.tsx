@@ -5,6 +5,7 @@ import ParameterSlider from './ParameterSlider';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Hexagon, Circle } from 'lucide-react';
+import CollapsibleSection from './CollapsibleSection';
 
 interface BoltControlsProps {
   parameters: PartParameter[];
@@ -26,17 +27,15 @@ const BoltControls: React.FC<BoltControlsProps> = ({ parameters, onParameterChan
   const countersinkParam = parameters.find(p => p.id === 'countersink');
   
   return (
-    <>
-      <div className='mt-6'>
-        <h3 className="text-lg font-medium mb-4">Basic Dimensions</h3>
-        
+    <div className="mt-4 space-y-2">
+      <CollapsibleSection title="Basic Dimensions" defaultOpen={true}>
         {headRadiusParam && <ParameterSlider parameter={headRadiusParam} onParameterChange={onParameterChange} />}
         {shaftRadiusParam && <ParameterSlider parameter={shaftRadiusParam} onParameterChange={onParameterChange} />}
         {lengthParam && <ParameterSlider parameter={lengthParam} onParameterChange={onParameterChange} />}
         {headHeightParam && <ParameterSlider parameter={headHeightParam} onParameterChange={onParameterChange} />}
         
         {headTypeParam && (
-          <div className="mb-6">
+          <div className="mb-4">
             <Label className="text-sm font-medium mb-2 block">Head Type</Label>
             <ToggleGroup 
               type="single" 
@@ -61,16 +60,15 @@ const BoltControls: React.FC<BoltControlsProps> = ({ parameters, onParameterChan
             </ToggleGroup>
           </div>
         )}
-      </div>
+      </CollapsibleSection>
       
-      <div className='mt-6 pt-4 border-t'>
-        <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
+      <CollapsibleSection title="Advanced Settings" defaultOpen={false}>
         {threadDepthParam && <ParameterSlider parameter={threadDepthParam} onParameterChange={onParameterChange} />}
         {threadPitchParam && <ParameterSlider parameter={threadPitchParam} onParameterChange={onParameterChange} />}
         {threadSegmentsParam && <ParameterSlider parameter={threadSegmentsParam} onParameterChange={onParameterChange} />}
         {countersinkParam && <ParameterSlider parameter={countersinkParam} onParameterChange={onParameterChange} />}
-      </div>
-    </>
+      </CollapsibleSection>
+    </div>
   );
 };
 

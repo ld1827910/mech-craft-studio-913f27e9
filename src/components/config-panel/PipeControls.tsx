@@ -2,6 +2,7 @@
 import React from 'react';
 import { PartParameter } from '@/hooks/useMockGraphQL';
 import ParameterSlider from './ParameterSlider';
+import CollapsibleSection from './CollapsibleSection';
 
 interface PipeControlsProps {
   parameters: PartParameter[];
@@ -17,23 +18,21 @@ const PipeControls: React.FC<PipeControlsProps> = ({ parameters, onParameterChan
   const advancedParameters = parameters.filter(p => advancedParams.includes(p.id));
   
   return (
-    <>
-      <div className='mt-6'>
-        <h3 className="text-lg font-medium mb-4">Basic Dimensions</h3>
+    <div className="mt-4 space-y-2">
+      <CollapsibleSection title="Basic Dimensions" defaultOpen={true}>
         {basicParameters.map(param => (
           <ParameterSlider key={param.id} parameter={param} onParameterChange={onParameterChange} />
         ))}
-      </div>
+      </CollapsibleSection>
       
       {advancedParameters.length > 0 && (
-        <div className='mt-6 pt-4 border-t'>
-          <h3 className="text-lg font-medium mb-4">Advanced Settings</h3>
+        <CollapsibleSection title="Advanced Settings" defaultOpen={false}>
           {advancedParameters.map(param => (
             <ParameterSlider key={param.id} parameter={param} onParameterChange={onParameterChange} />
           ))}
-        </div>
+        </CollapsibleSection>
       )}
-    </>
+    </div>
   );
 };
 

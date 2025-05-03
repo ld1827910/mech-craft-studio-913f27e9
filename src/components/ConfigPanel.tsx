@@ -10,6 +10,7 @@ import PipeControls from './config-panel/PipeControls';
 import SpringControls from './config-panel/SpringControls';
 import BoltControls from './config-panel/BoltControls';
 import NutControls from './config-panel/NutControls';
+import CollapsibleSection from './config-panel/CollapsibleSection';
 
 interface ConfigPanelProps {
   parameters: PartParameter[];
@@ -78,11 +79,17 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   };
 
   return (
-    <Card className="w-full h-full overflow-auto">
-      <CardHeader className="bg-mechanical-blue text-white">
-        <CardTitle className="text-xl">{partTitle} Configuration</CardTitle>
+    <Card className="w-full h-full overflow-auto shadow-lg border-mechanical-blue/10">
+      <CardHeader className="bg-mechanical-blue text-white sticky top-0 z-10">
+        <CardTitle className="text-xl flex items-center">
+          <span className="flex-1">{partTitle} Configuration</span>
+          <AutoRotateToggle 
+            autoRotate={autoRotate} 
+            onAutoRotateChange={onAutoRotateChange} 
+          />
+        </CardTitle>
       </CardHeader>
-      <CardContent className="p-6">
+      <CardContent className="p-4 max-h-[calc(100vh-200px)] overflow-auto">
         {isLoading ? (
           <div className="animate-pulse space-y-4">
             {[1, 2, 3, 4].map((i) => (
@@ -93,24 +100,21 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
             ))}
           </div>
         ) : (
-          <>
-            <div className="space-y-6">
-              <AutoRotateToggle 
-                autoRotate={autoRotate} 
-                onAutoRotateChange={onAutoRotateChange} 
-              />
-
-              {renderPartControls()}
-              
+          <div className="space-y-4">
+            {renderPartControls()}
+            
+            <CollapsibleSection title="Material Options" defaultOpen={false}>
               <MaterialSelector 
                 materials={materials}
                 selectedMaterial={selectedMaterial}
                 onMaterialChange={onMaterialChange}
               />
-            </div>
+            </CollapsibleSection>
 
-            <ExportButton />
-          </>
+            <div className="pt-4">
+              <ExportButton />
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
