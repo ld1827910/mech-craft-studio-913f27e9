@@ -10,13 +10,13 @@ interface SpringControlsProps {
 }
 
 const SpringControls: React.FC<SpringControlsProps> = ({ parameters, onParameterChange }) => {
-  // Update: Fixed parameter grouping to prevent duplicates - height is only in basic parameters
+  // Update: Fixed parameter grouping to prevent duplicates
   const basicParams = ['radius', 'thickness', 'coils', 'height'];
   const advancedParams = ['tension', 'resolution', 'waveAmplitude', 'radialSegments', 'taper'];
   
-  // Filter parameters to prevent duplicates
+  // Filter parameters to prevent duplicates using ID as the key
   const basicParameters = parameters.filter(p => basicParams.includes(p.id));
-  const advancedParameters = parameters.filter(p => advancedParams.includes(p.id));
+  const advancedParameters = parameters.filter(p => advancedParams.includes(p.id) && !basicParams.includes(p.id));
   
   return (
     <div className="mt-4 space-y-2">
