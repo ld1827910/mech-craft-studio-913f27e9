@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Share2, BookOpen, Moon, Sun, Github, Database, Zap } from 'lucide-react';
+import { Download, Share2, Moon, Sun, Github, Zap } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -26,12 +26,6 @@ const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-1 md:space-x-2">
-          <div className="hidden md:flex items-center mr-2">
-            <a href="#" className="text-sm text-white/90 hover:text-white px-3 py-2 rounded-md transition-colors">Documentation</a>
-            <a href="#" className="text-sm text-white/90 hover:text-white px-3 py-2 rounded-md transition-colors">Examples</a>
-            <a href="#" className="text-sm text-white/90 hover:text-white px-3 py-2 rounded-md transition-colors">API</a>
-          </div>
-          
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

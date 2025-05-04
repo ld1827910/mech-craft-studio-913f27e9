@@ -31,21 +31,29 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
   }, [material]);
 
   const nutGeometry = useMemo(() => {
+    // Increase the size multiplier to make the nut bigger
+    const sizeMultiplier = 2.0;
+    
     const { radius, height, holeRadius } = parameters;
     const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
     const chamferSize = parameters.chamferSize ?? 0.1; // Default chamfer
     const texture = parameters.texture ?? 0; // Default smooth
     
+    // Apply size multiplier to all dimensions
+    const scaledRadius = radius * sizeMultiplier;
+    const scaledHeight = height * sizeMultiplier;
+    const scaledHoleRadius = holeRadius * sizeMultiplier;
+    
     // Safety check: ensure hole radius doesn't exceed 80% of total radius
-    const maxHoleRadius = radius * 0.8;
-    const safeHoleRadius = Math.min(holeRadius, maxHoleRadius);
+    const maxHoleRadius = scaledRadius * 0.8;
+    const safeHoleRadius = Math.min(scaledHoleRadius, maxHoleRadius);
     
     // Create the basic nut shape
     const shape = new THREE.Shape();
     for (let i = 0; i < sides; i++) {
       const angle = (i * Math.PI * 2) / sides;
-      const x = radius * Math.cos(angle);
-      const y = radius * Math.sin(angle);
+      const x = scaledRadius * Math.cos(angle);
+      const y = scaledRadius * Math.sin(angle);
       i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
     }
     shape.closePath();
@@ -57,11 +65,11 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
 
     // Extrusion settings with chamfer (bevel)
     const extrudeSettings = {
-      depth: height,
+      depth: scaledHeight,
       bevelEnabled: chamferSize > 0,
       bevelSegments: 3,
-      bevelSize: chamferSize * radius,
-      bevelThickness: chamferSize * height,
+      bevelSize: chamferSize * scaledRadius,
+      bevelThickness: chamferSize * scaledHeight,
       curveSegments: Math.max(sides * 2, 12) // Higher segments for smoother edges
     };
 
@@ -78,7 +86,7 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
         const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
         
         // Only apply texture to outer surface, not to hole or top/bottom faces
-        if (distFromCenter > safeHoleRadius && Math.abs(vertex.y) < height / 2 + chamferSize * height) {
+        if (distFromCenter > safeHoleRadius && Math.abs(vertex.y) < scaledHeight / 2 + chamferSize * scaledHeight) {
           vertex.x += (Math.random() - 0.5) * texture * 0.05;
           vertex.z += (Math.random() - 0.5) * texture * 0.05;
           positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);

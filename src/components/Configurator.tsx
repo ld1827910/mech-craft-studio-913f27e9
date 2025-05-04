@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
@@ -7,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Alert, AlertDescription } from './ui/alert';
 
 const Configurator: React.FC = () => {
@@ -22,7 +22,6 @@ const Configurator: React.FC = () => {
   const [selectedPart, setSelectedPart] = useState('gear');
   const [autoRotate, setAutoRotate] = useState(false);
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('design');
 
   React.useEffect(() => {
     if (data) {
@@ -155,72 +154,34 @@ const Configurator: React.FC = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="design" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-3 mb-6">
-          <TabsTrigger value="design" className="text-sm">Design</TabsTrigger>
-          <TabsTrigger value="simulate" className="text-sm">Simulate</TabsTrigger>
-          <TabsTrigger value="manufacture" className="text-sm">Manufacture</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="design" className="fade-in">
-          <div id="3d-configurator" className="flex flex-col lg:flex-row gap-6">
-            <div className="w-full lg:w-2/3 h-[500px] md:h-[600px]">
-              <Card className="w-full h-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
-                <ThreeScene 
-                  parameters={parameters} 
-                  material={selectedMaterial}
-                  selectedPart={selectedPart}
-                  isLoading={loading}
-                  autoRotate={autoRotate} 
-                />
-              </Card>
-            </div>
-            <div className="w-full lg:w-1/3">
-              <ConfigPanel
-                parameters={parameters}
-                materials={materials}
-                selectedMaterial={selectedMaterial}
-                onParameterChange={handleParameterChange}
-                onMaterialChange={handleMaterialChange}
+      <div className="fade-in">
+        <div id="3d-configurator" className="flex flex-col lg:flex-row gap-6">
+          <div className="w-full lg:w-2/3 h-[500px] md:h-[600px]">
+            <Card className="w-full h-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+              <ThreeScene 
+                parameters={parameters} 
+                material={selectedMaterial}
                 selectedPart={selectedPart}
                 isLoading={loading}
-                autoRotate={autoRotate}
-                onAutoRotateChange={setAutoRotate}
+                autoRotate={autoRotate} 
               />
-            </div>
+            </Card>
           </div>
-        </TabsContent>
-        
-        <TabsContent value="simulate" className="fade-in">
-          <Card className="w-full p-6 flex items-center justify-center min-h-[300px]">
-            <div className="text-center max-w-md">
-              <div className="bg-mechanical-blue/10 dark:bg-mechanical-blue/20 rounded-full p-4 mx-auto w-16 h-16 flex items-center justify-center mb-4">
-                <Cog className="h-8 w-8 text-mechanical-blue" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Simulation Tools Coming Soon</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Our engineering team is working on advanced simulation features including stress analysis, motion studies, and thermal analysis.
-              </p>
-              <Button variant="outline">Join Waitlist</Button>
-            </div>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="manufacture" className="fade-in">
-          <Card className="w-full p-6 flex items-center justify-center min-h-[300px]">
-            <div className="text-center max-w-md">
-              <div className="bg-mechanical-blue/10 dark:bg-mechanical-blue/20 rounded-full p-4 mx-auto w-16 h-16 flex items-center justify-center mb-4">
-                <Bolt className="h-8 w-8 text-mechanical-blue" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Manufacturing Portal</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Connect with our network of certified manufacturing partners to produce your custom components.
-              </p>
-              <Button>Request Quote</Button>
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <div className="w-full lg:w-1/3">
+            <ConfigPanel
+              parameters={parameters}
+              materials={materials}
+              selectedMaterial={selectedMaterial}
+              onParameterChange={handleParameterChange}
+              onMaterialChange={handleMaterialChange}
+              selectedPart={selectedPart}
+              isLoading={loading}
+              autoRotate={autoRotate}
+              onAutoRotateChange={setAutoRotate}
+            />
+          </div>
+        </div>
+      </div>
       
       <div id="how-it-works" className="mt-20 scroll-mt-20 fade-in">
         <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Configurator from '@/components/Configurator';
@@ -49,25 +50,6 @@ const Index: React.FC = () => {
                 <Button variant="outline" className="border-white/40 text-white hover:bg-white/10">
                   View Documentation
                 </Button>
-              </div>
-            </div>
-            
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-                <div className="font-bold text-3xl">500+</div>
-                <div className="text-sm text-white/80">Components Designed</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-                <div className="font-bold text-3xl">50+</div>
-                <div className="text-sm text-white/80">Material Options</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-                <div className="font-bold text-3xl">99.9%</div>
-                <div className="text-sm text-white/80">Precision</div>
-              </div>
-              <div className="bg-white/10 backdrop-blur-sm p-4 rounded-lg">
-                <div className="font-bold text-3xl">24/7</div>
-                <div className="text-sm text-white/80">Engineering Support</div>
               </div>
             </div>
           </div>
