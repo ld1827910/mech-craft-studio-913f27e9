@@ -18,19 +18,19 @@ const UnitToggle: React.FC = () => {
             toggleUnitSystem();
           }
         }}
-        className="border rounded-md bg-background shadow-sm"
+        className="border rounded-md bg-background shadow-sm smooth-transition"
       >
         <ToggleGroupItem 
           value="metric" 
           size="sm" 
-          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground smooth-transition"
         >
           mm
         </ToggleGroupItem>
         <ToggleGroupItem 
           value="imperial" 
           size="sm" 
-          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground smooth-transition"
         >
           in
         </ToggleGroupItem>
