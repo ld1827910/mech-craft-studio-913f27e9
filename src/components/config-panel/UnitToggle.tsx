@@ -13,7 +13,9 @@ const UnitToggle: React.FC = () => {
         type="single" 
         value={unitSystem}
         onValueChange={(value) => {
-          if (value) toggleUnitSystem();
+          if (value === 'metric' || value === 'imperial') {
+            toggleUnitSystem();
+          }
         }}
         className="border rounded-md"
       >

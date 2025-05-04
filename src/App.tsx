@@ -16,8 +16,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Router>
+        <Toaster />
       </TooltipProvider>
-      <Toaster />
     </ThemeProvider>
   );
 }

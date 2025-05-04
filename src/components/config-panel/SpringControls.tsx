@@ -10,11 +10,10 @@ interface SpringControlsProps {
 }
 
 const SpringControls: React.FC<SpringControlsProps> = ({ parameters, onParameterChange }) => {
-  // Update: Fixed parameter grouping to prevent duplicates and ensure height appears only in basic params
+  // Group parameters by category, ensuring height appears only in basic params
   const basicParams = ['radius', 'thickness', 'coils', 'height'];
   const advancedParams = ['tension', 'resolution', 'waveAmplitude', 'radialSegments', 'taper'];
   
-  // Use filteredParameters to ensure each parameter only appears once (prioritizing basic)
   const usedParameterIds = new Set();
   
   // Get basic parameters first

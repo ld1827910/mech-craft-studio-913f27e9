@@ -14,8 +14,25 @@ const PipeControls: React.FC<PipeControlsProps> = ({ parameters, onParameterChan
   const basicParams = ['length', 'radius', 'thickness'];
   const advancedParams = ['segments', 'bevelSize', 'taper'];
   
-  const basicParameters = parameters.filter(p => basicParams.includes(p.id));
-  const advancedParameters = parameters.filter(p => advancedParams.includes(p.id));
+  const usedParameterIds = new Set();
+  
+  // Get basic parameters first
+  const basicParameters = parameters.filter(p => {
+    if (basicParams.includes(p.id) && !usedParameterIds.has(p.id)) {
+      usedParameterIds.add(p.id);
+      return true;
+    }
+    return false;
+  });
+  
+  // Then get advanced parameters that weren't already included in basic
+  const advancedParameters = parameters.filter(p => {
+    if (advancedParams.includes(p.id) && !usedParameterIds.has(p.id)) {
+      usedParameterIds.add(p.id);
+      return true;
+    }
+    return false;
+  });
   
   return (
     <div className="mt-4 space-y-2">
