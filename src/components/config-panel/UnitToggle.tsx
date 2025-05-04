@@ -13,7 +13,7 @@ const UnitToggle: React.FC = () => {
         type="single" 
         value={unitSystem}
         onValueChange={(value) => {
-          if (value === 'metric' || value === 'imperial') {
+          if (value) {
             toggleUnitSystem();
           }
         }}

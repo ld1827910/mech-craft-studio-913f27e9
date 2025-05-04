@@ -10,7 +10,7 @@ interface SpringControlsProps {
 }
 
 const SpringControls: React.FC<SpringControlsProps> = ({ parameters, onParameterChange }) => {
-  // Group parameters by category, ensuring height appears only in basic params
+  // Group parameters by category
   const basicParams = ['radius', 'thickness', 'coils', 'height'];
   const advancedParams = ['tension', 'resolution', 'waveAmplitude', 'radialSegments', 'taper'];
   
