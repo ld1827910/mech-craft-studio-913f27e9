@@ -12,6 +12,8 @@ import BoltControls from './config-panel/BoltControls';
 import NutControls from './config-panel/NutControls';
 import CollapsibleSection from './config-panel/CollapsibleSection';
 import UnitToggle from './config-panel/UnitToggle';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Sliders, Palette, FileCog } from 'lucide-react';
 
 interface ConfigPanelProps {
   parameters: PartParameter[];
@@ -80,10 +82,13 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
   };
 
   return (
-    <Card className="w-full h-full overflow-auto shadow-lg border-gray-200">
-      <CardHeader className="bg-mechanical-blue text-white sticky top-0 z-10">
+    <Card className="w-full h-full overflow-hidden border-gray-200 dark:border-gray-700 shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-mechanical-blue to-mechanical-darkblue text-white sticky top-0 z-10 p-4">
         <CardTitle className="text-xl flex items-center justify-between">
-          <span>{partTitle} Configuration</span>
+          <span className="flex items-center gap-2">
+            <FileCog className="h-5 w-5" />
+            {partTitle} Configuration
+          </span>
           <div className="flex items-center gap-3">
             <UnitToggle />
             <AutoRotateToggle 
@@ -93,33 +98,48 @@ const ConfigPanel: React.FC<ConfigPanelProps> = ({
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-4 max-h-[calc(100vh-200px)] overflow-auto">
-        {isLoading ? (
-          <div className="animate-pulse space-y-4">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i}>
-                <div className="h-4 w-1/3 bg-gray-200 rounded mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+      <CardContent className="p-0">
+        <Tabs defaultValue="parameters" className="w-full">
+          <TabsList className="w-full rounded-none border-b grid grid-cols-2 bg-transparent">
+            <TabsTrigger value="parameters" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-mechanical-blue rounded-none">
+              <Sliders className="h-4 w-4 mr-2" />
+              Parameters
+            </TabsTrigger>
+            <TabsTrigger value="materials" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-mechanical-blue rounded-none">
+              <Palette className="h-4 w-4 mr-2" />
+              Materials
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="parameters" className="p-4 max-h-[calc(100vh-200px)] overflow-auto">
+            {isLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i}>
+                    <div className="h-4 w-1/3 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+                    <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {renderPartControls()}
-            
-            <CollapsibleSection title="Material Options" defaultOpen={false}>
-              <MaterialSelector 
-                materials={materials}
-                selectedMaterial={selectedMaterial}
-                onMaterialChange={onMaterialChange}
-              />
-            </CollapsibleSection>
-
-            <div className="pt-4">
-              <ExportButton />
-            </div>
-          </div>
-        )}
+            ) : (
+              <div className="space-y-6">
+                {renderPartControls()}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="materials" className="p-4 max-h-[calc(100vh-200px)] overflow-auto">
+            <MaterialSelector 
+              materials={materials}
+              selectedMaterial={selectedMaterial}
+              onMaterialChange={onMaterialChange}
+            />
+          </TabsContent>
+        </Tabs>
+        
+        <div className="p-4 border-t">
+          <ExportButton />
+        </div>
       </CardContent>
     </Card>
   );

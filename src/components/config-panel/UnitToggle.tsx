@@ -2,13 +2,14 @@
 import React from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useUnits } from '@/hooks/useUnits';
+import { Ruler } from 'lucide-react';
 
 const UnitToggle: React.FC = () => {
   const { unitSystem, toggleUnitSystem } = useUnits();
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs font-medium">Units:</span>
+      <Ruler className="h-4 w-4 text-muted-foreground" />
       <ToggleGroup 
         type="single" 
         value={unitSystem}
@@ -17,19 +18,19 @@ const UnitToggle: React.FC = () => {
             toggleUnitSystem();
           }
         }}
-        className="border rounded-md"
+        className="border rounded-md bg-background shadow-sm"
       >
         <ToggleGroupItem 
           value="metric" 
           size="sm" 
-          className="text-xs px-2 py-1 h-auto"
+          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           mm
         </ToggleGroupItem>
         <ToggleGroupItem 
           value="imperial" 
           size="sm" 
-          className="text-xs px-2 py-1 h-auto"
+          className="text-xs px-3 py-1.5 h-auto data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
         >
           in
         </ToggleGroupItem>

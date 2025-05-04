@@ -1,17 +1,47 @@
 
 import React from 'react';
-import { Cog } from 'lucide-react';
+import { Cog, ArrowRight, Mail, MapPin, Phone } from 'lucide-react';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
 import { Separator } from './ui/separator';
+import { Alert, AlertDescription } from './ui/alert';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-mechanical-gray text-white py-10">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-mechanical-gray text-white">
+      {/* Newsletter section */}
+      <div className="bg-mechanical-blue/20 py-10">
+        <div className="container mx-auto px-4">
+          <div className="bg-mechanical-darkblue rounded-xl p-8 shadow-xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?q=80&w=2070')] opacity-10 bg-cover bg-center"></div>
+            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="text-center md:text-left">
+                <h3 className="text-2xl font-bold mb-2">Join Our Engineering Newsletter</h3>
+                <p className="text-white/80 max-w-md">Get the latest design tips, material insights, and manufacturing techniques.</p>
+              </div>
+              <div className="flex-shrink-0 w-full md:w-auto">
+                <form className="flex flex-col sm:flex-row gap-3">
+                  <input 
+                    type="email" 
+                    placeholder="Your email address" 
+                    className="px-4 py-2.5 w-full sm:w-64 text-sm text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-white/20" 
+                  />
+                  <Button type="submit" className="bg-white hover:bg-white/90 text-mechanical-darkblue font-medium">
+                    Subscribe
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main footer content */}
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <div className="flex items-center">
               <div className="bg-white rounded-full p-1.5 mr-2">
@@ -38,56 +68,63 @@ const Footer: React.FC = () => {
                   <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                 </svg>
               </a>
-              <a href="#" className="text-white hover:text-mechanical-lightblue transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                </svg>
-              </a>
+            </div>
+            
+            <div className="mt-6 space-y-2 text-sm">
+              <div className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2 text-mechanical-lightblue" />
+                <span>123 Engineering Way, Tech City, CA 91234</span>
+              </div>
+              <div className="flex items-center">
+                <Phone className="h-4 w-4 mr-2 text-mechanical-lightblue" />
+                <span>+1 (555) 123-4567</span>
+              </div>
+              <div className="flex items-center">
+                <Mail className="h-4 w-4 mr-2 text-mechanical-lightblue" />
+                <span>contact@mechcraft.io</span>
+              </div>
             </div>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">Products</h3>
             <ul className="space-y-2">
-              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors">Configurator</Link></li>
-              <li><Link to="/gallery" className="text-gray-300 hover:text-white transition-colors">Component Gallery</Link></li>
-              <li><Link to="/compare" className="text-gray-300 hover:text-white transition-colors">Material Comparison</Link></li>
-              <li><Link to="/history" className="text-gray-300 hover:text-white transition-colors">Design History</Link></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Manufacturing API</a></li>
+              <li><Link to="/" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Configurator</Link></li>
+              <li><Link to="/gallery" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Component Gallery</Link></li>
+              <li><Link to="/compare" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Material Comparison</Link></li>
+              <li><Link to="/history" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Design History</Link></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Manufacturing API</a></li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-lg font-semibold mb-4">Resources</h3>
             <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Documentation</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">API Reference</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Material Database</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Engineering Standards</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Manufacturing Guide</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Documentation</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />API Reference</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Material Database</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Engineering Standards</a></li>
+              <li><a href="#" className="text-gray-300 hover:text-white transition-colors flex items-center"><ArrowRight className="h-3 w-3 mr-2" />Manufacturing Guide</a></li>
             </ul>
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-4">Subscribe</h3>
-            <p className="text-sm text-gray-300 mb-4">
-              Stay updated with the latest features and engineering insights.
-            </p>
-            <form className="space-y-2">
-              <div className="flex">
-                <input 
-                  type="email" 
-                  placeholder="Your email address" 
-                  className="px-4 py-2 w-full text-sm text-gray-900 rounded-l-md focus:outline-none" 
-                />
-                <Button type="submit" className="bg-mechanical-blue hover:bg-mechanical-darkblue text-white rounded-l-none">
-                  Subscribe
-                </Button>
-              </div>
-              <p className="text-xs text-gray-400">
-                By subscribing, you agree to our Privacy Policy and receive email marketing.
+            <h3 className="text-lg font-semibold mb-4">Professional Services</h3>
+            <div className="bg-white/10 rounded-lg p-4 mb-4">
+              <h4 className="font-medium mb-2">Enterprise Solutions</h4>
+              <p className="text-sm text-gray-300 mb-3">
+                Customized solutions for engineering departments with advanced simulation and collaboration features.
               </p>
-            </form>
+              <Button variant="outline" size="sm" className="w-full border-white/20 text-white hover:bg-white/10">
+                Learn More
+              </Button>
+            </div>
+            
+            <Alert className="bg-mechanical-blue/20 border-mechanical-lightblue/30 text-white">
+              <AlertDescription className="text-sm">
+                Looking for custom development? Our engineering team can help build specialized tools for your workflow.
+              </AlertDescription>
+            </Alert>
           </div>
         </div>
         
