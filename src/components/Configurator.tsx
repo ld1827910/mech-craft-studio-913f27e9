@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import ThreeScene from './ThreeScene';
 import ConfigPanel from './ConfigPanel';
@@ -105,7 +104,7 @@ const Configurator: React.FC = () => {
 
   return (
     <div className="container mx-auto py-10 px-4 md:px-6 max-w-7xl">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-10 border border-gray-100 dark:border-gray-700 animate-fade-in">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md mb-10 border border-gray-100 dark:border-gray-700 fade-in">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h2 className="text-2xl font-bold flex items-center">
@@ -163,7 +162,7 @@ const Configurator: React.FC = () => {
           <TabsTrigger value="manufacture" className="text-sm">Manufacture</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="design" className="animate-fade-in">
+        <TabsContent value="design" className="fade-in">
           <div id="3d-configurator" className="flex flex-col lg:flex-row gap-6">
             <div className="w-full lg:w-2/3 h-[500px] md:h-[600px]">
               <Card className="w-full h-full overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
@@ -192,7 +191,7 @@ const Configurator: React.FC = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="simulate" className="animate-fade-in">
+        <TabsContent value="simulate" className="fade-in">
           <Card className="w-full p-6 flex items-center justify-center min-h-[300px]">
             <div className="text-center max-w-md">
               <div className="bg-mechanical-blue/10 dark:bg-mechanical-blue/20 rounded-full p-4 mx-auto w-16 h-16 flex items-center justify-center mb-4">
@@ -207,7 +206,7 @@ const Configurator: React.FC = () => {
           </Card>
         </TabsContent>
         
-        <TabsContent value="manufacture" className="animate-fade-in">
+        <TabsContent value="manufacture" className="fade-in">
           <Card className="w-full p-6 flex items-center justify-center min-h-[300px]">
             <div className="text-center max-w-md">
               <div className="bg-mechanical-blue/10 dark:bg-mechanical-blue/20 rounded-full p-4 mx-auto w-16 h-16 flex items-center justify-center mb-4">
@@ -223,7 +222,7 @@ const Configurator: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      <div id="how-it-works" className="mt-20 scroll-mt-20 animate-fade-in">
+      <div id="how-it-works" className="mt-20 scroll-mt-20 fade-in">
         <h2 className="text-3xl font-bold mb-8 text-center">How It Works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <Card className="overflow-hidden border-gray-100 dark:border-gray-700 shadow-md transition-all hover:shadow-lg">
@@ -255,7 +254,7 @@ const Configurator: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-16 bg-gradient-to-r from-mechanical-blue/10 to-mechanical-lightblue/10 p-8 rounded-xl border border-mechanical-lightblue/20 animate-fade-in">
+      <div className="mt-16 bg-gradient-to-r from-mechanical-blue/10 to-mechanical-lightblue/10 p-8 rounded-xl border border-mechanical-lightblue/20 fade-in">
         <h2 className="text-2xl font-bold mb-6 text-center">Technical Specifications</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="flex space-x-4">
@@ -314,7 +313,7 @@ const Configurator: React.FC = () => {
         </div>
       </div>
 
-      <div className="mt-20 animate-fade-in">
+      <div className="mt-20 fade-in">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold">Featured Projects</h2>
           <Button variant="outline" size="sm">View All Projects</Button>

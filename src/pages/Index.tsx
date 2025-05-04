@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Configurator from '@/components/Configurator';
@@ -29,7 +28,7 @@ const Index: React.FC = () => {
             }} />
           </div>
           <div className="container mx-auto px-4 text-center relative z-10">
-            <div className="animate-fade-in">
+            <div className="fade-in">
               <span className="inline-block bg-white/20 backdrop-blur-sm text-white text-sm px-3 py-1 rounded-full mb-6">
                 Professional Engineering Tools
               </span>
