@@ -113,6 +113,8 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     // Add thread texture inside the hole
     const threadDetail = Math.floor(sides * 2);
     const innerPositions = [];
+    const positionAttribute = geometry.getAttribute('position');
+    const vertex = new THREE.Vector3();
     
     // Find inner hole vertices
     for (let i = 0; i < positionAttribute.count; i++) {
