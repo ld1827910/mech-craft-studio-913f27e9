@@ -8,9 +8,9 @@ interface NutProps {
     radius: number;
     height: number;
     holeRadius: number;
-    chamferSize?: number; // New parameter for edge chamfer
-    sides?: number; // New parameter for number of sides (hex=6, square=4, etc)
-    texture?: number; // New parameter for surface texture
+    chamferSize?: number;
+    sides?: number;
+    texture?: number;
   };
   material: string;
   autoRotate?: boolean;
@@ -30,9 +30,21 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     }
   }, [material]);
 
+  // Create a metallic material with reflection properties
+  const nutMaterial = useMemo(() => {
+    const mat = new THREE.MeshStandardMaterial({
+      color: materialColor,
+      metalness: 0.8,
+      roughness: 0.2,
+      envMapIntensity: 1.0,
+      flatShading: false,
+    });
+    return mat;
+  }, [materialColor]);
+
   const nutGeometry = useMemo(() => {
-    // Increase the size multiplier to make the nut bigger
-    const sizeMultiplier = 2.5;
+    // Size multiplier for the nut to make it properly visible
+    const sizeMultiplier = 3.0;
     
     const { radius, height, holeRadius } = parameters;
     const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
@@ -48,7 +60,7 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     const maxHoleRadius = scaledRadius * 0.8;
     const safeHoleRadius = Math.min(scaledHoleRadius, maxHoleRadius);
     
-    // Create the basic nut shape
+    // Create the basic nut shape (hexagonal by default)
     const shape = new THREE.Shape();
     for (let i = 0; i < sides; i++) {
       const angle = (i * Math.PI * 2) / sides;
@@ -66,11 +78,11 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     // Extrusion settings with chamfer (bevel)
     const extrudeSettings = {
       depth: scaledHeight,
-      bevelEnabled: chamferSize > 0,
+      bevelEnabled: true,
       bevelSegments: 3,
       bevelSize: chamferSize * scaledRadius,
       bevelThickness: chamferSize * scaledHeight,
-      curveSegments: Math.max(sides * 2, 12) // Higher segments for smoother edges
+      curveSegments: Math.max(sides * 2, 16) // Higher segments for smoother edges
     };
 
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
@@ -80,15 +92,17 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       const positionAttribute = geometry.getAttribute('position');
       const vertex = new THREE.Vector3();
       
-      // Apply slight random displacement to surface vertices
+      // Apply slight random displacement to surface vertices based on texture intensity
       for (let i = 0; i < positionAttribute.count; i++) {
         vertex.fromBufferAttribute(positionAttribute, i);
         const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
         
         // Only apply texture to outer surface, not to hole or top/bottom faces
         if (distFromCenter > safeHoleRadius && Math.abs(vertex.y) < scaledHeight / 2 + chamferSize * scaledHeight) {
-          vertex.x += (Math.random() - 0.5) * texture * 0.05;
-          vertex.z += (Math.random() - 0.5) * texture * 0.05;
+          // Scale texture based on parameter value (0-10)
+          const textureIntensity = texture * 0.005;
+          vertex.x += (Math.random() - 0.5) * textureIntensity * scaledRadius;
+          vertex.z += (Math.random() - 0.5) * textureIntensity * scaledRadius;
           positionAttribute.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
       }
@@ -96,7 +110,51 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       geometry.computeVertexNormals();
     }
     
+    // Add thread texture inside the hole
+    const threadDetail = Math.floor(sides * 2);
+    const innerPositions = [];
+    
+    // Find inner hole vertices
+    for (let i = 0; i < positionAttribute.count; i++) {
+      vertex.fromBufferAttribute(positionAttribute, i);
+      const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
+      
+      // Check if vertex is part of the inner hole
+      if (distFromCenter <= safeHoleRadius * 1.1) {
+        innerPositions.push(i);
+      }
+    }
+    
+    // Add thread pattern to inner hole
+    for (let i = 0; i < innerPositions.length; i++) {
+      const index = innerPositions[i];
+      vertex.fromBufferAttribute(positionAttribute, index);
+      
+      // Simple thread pattern based on y-position
+      const threadDepth = safeHoleRadius * 0.08;
+      const threadPitch = scaledHeight / 8;
+      const threadOffset = Math.sin((vertex.y / threadPitch) * Math.PI * 2) * threadDepth;
+      
+      // Calculate direction to center
+      const dirX = -vertex.x;
+      const dirZ = -vertex.z;
+      const len = Math.sqrt(dirX * dirX + dirZ * dirZ);
+      
+      if (len > 0) {
+        // Move vertex inward/outward based on thread pattern
+        const normX = dirX / len;
+        const normZ = dirZ / len;
+        
+        vertex.x += normX * threadOffset;
+        vertex.z += normZ * threadOffset;
+        
+        positionAttribute.setXYZ(index, vertex.x, vertex.y, vertex.z);
+      }
+    }
+    
+    geometry.computeVertexNormals();
     geometry.center();
+    
     return geometry;
   }, [parameters]);
 
@@ -106,14 +164,22 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       groupRef.current.rotation.y += delta * 0.5;
     }
   });
+  
+  // Create reflection environment
+  const envMap = useMemo(() => {
+    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256);
+    cubeRenderTarget.texture.type = THREE.HalfFloatType;
+    return cubeRenderTarget.texture;
+  }, []);
 
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} geometry={nutGeometry}>
+      <mesh ref={meshRef} geometry={nutGeometry} castShadow receiveShadow>
         <meshStandardMaterial 
           color={materialColor} 
-          metalness={0.7} 
-          roughness={0.3}
+          metalness={0.85} 
+          roughness={0.2}
+          envMap={envMap}
           side={THREE.DoubleSide}
         />
       </mesh>

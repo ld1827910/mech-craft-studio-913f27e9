@@ -3,12 +3,22 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Enhanced Cache busting mechanism
-const appVersion = '1.0.2'; // Incrementing version number
+// Enhanced Cache busting mechanism - updated version
+const appVersion = '1.0.3'; // Incrementing version number
 const timestamp = new Date().getTime(); // Add timestamp for unique loading each time
 console.log(`MechCraft App v${appVersion} loaded (build: ${timestamp})`);
 
-// Force reload if app is more than 24 hours old
+// Force reload if app version has changed
+const storedVersion = localStorage.getItem('app_version');
+if (storedVersion && storedVersion !== appVersion) {
+  console.log(`New version detected: ${appVersion} (old: ${storedVersion}). Forcing refresh.`);
+  localStorage.setItem('app_version', appVersion);
+  window.location.reload();
+} else if (!storedVersion) {
+  localStorage.setItem('app_version', appVersion);
+}
+
+// Also force reload if app is more than 24 hours old
 const lastLoaded = localStorage.getItem('app_last_loaded');
 const currentTime = new Date().getTime();
 if (lastLoaded) {
