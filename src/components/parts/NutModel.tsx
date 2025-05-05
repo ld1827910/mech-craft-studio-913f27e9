@@ -45,10 +45,17 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
 
   const nutGeometry = useMemo(() => {
     // Scale to match other parts without applying extra multiplier
-    const { radius, height, holeRadius } = parameters;
+    const { radius, height } = parameters;
     const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
     const chamferSize = parameters.chamferSize ?? 0.1; // Default chamfer
     const texture = parameters.texture ?? 0; // Default smooth
+    
+    // Safe hole size - ensure it's not larger than ~90% of the radius (like in GearModel)
+    let holeRadius = parameters.holeRadius;
+    const maxHoleSize = radius * 0.9;
+    if (holeRadius > maxHoleSize) {
+      holeRadius = maxHoleSize;
+    }
     
     // Create the basic nut shape (hexagonal by default)
     const shape = new THREE.Shape();
@@ -102,11 +109,12 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     
     // Add thread texture inside the hole
     const threadDetail = Math.floor(sides * 2);
-    const innerPositions = [];
+    // Define these variables to fix the error
     const positionAttribute = geometry.getAttribute('position');
     const vertex = new THREE.Vector3();
     
     // Find inner hole vertices
+    const innerPositions = [];
     for (let i = 0; i < positionAttribute.count; i++) {
       vertex.fromBufferAttribute(positionAttribute, i);
       const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
