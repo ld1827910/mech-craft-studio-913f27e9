@@ -31,30 +31,16 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     }
   }, [material]);
 
-  // Create a metallic material with reflection properties
-  const nutMaterial = useMemo(() => {
-    const mat = new THREE.MeshStandardMaterial({
-      color: materialColor,
-      metalness: 0.6,  // Matched to other components
-      roughness: 0.4,  // Matched to other components
-      envMapIntensity: 1.0,
-      flatShading: false,
-    });
-    return mat;
-  }, [materialColor]);
-
   const nutGeometry = useMemo(() => {
-    // Scale to match other parts without applying extra multiplier
+    // Extract parameters with defaults
     const { radius, height } = parameters;
     const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
-    const chamferSize = parameters.chamferSize ?? 0.1; // Default chamfer
-    const texture = parameters.texture ?? 0; // Default smooth
+    const chamferSize = parameters.chamferSize ?? 0.1;
     
-    // Improved hole sizing - ensure hole is proportionally larger to make it look like an actual nut
-    // Minimum hole size should be at least 30% of radius for a realistic nut
+    // Set reasonable hole size constraints for a realistic nut
     let holeRadius = parameters.holeRadius;
-    const minHoleSize = radius * 0.3; // Ensure minimum hole size
-    const maxHoleSize = radius * 0.85; // Maximum hole size (slightly reduced from 0.9)
+    const minHoleSize = radius * 0.35; // Minimum 35% of radius for realistic nut
+    const maxHoleSize = radius * 0.75; // Maximum 75% to maintain structure
     
     if (holeRadius < minHoleSize) {
       holeRadius = minHoleSize;
@@ -62,7 +48,7 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       holeRadius = maxHoleSize;
     }
     
-    // Create the basic nut shape (hexagonal by default)
+    // Create the basic polygon shape based on sides
     const shape = new THREE.Shape();
     for (let i = 0; i < sides; i++) {
       const angle = (i * Math.PI * 2) / sides;
@@ -71,97 +57,109 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       i === 0 ? shape.moveTo(x, y) : shape.lineTo(x, y);
     }
     shape.closePath();
-
-    // Create the hole
+    
+    // Create the center hole
     const holePath = new THREE.Path();
     holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
     shape.holes.push(holePath);
-
-    // Extrusion settings with chamfer (bevel)
+    
+    // Extrusion settings with proper chamfer
     const extrudeSettings = {
       depth: height,
       bevelEnabled: true,
       bevelSegments: 3,
-      bevelSize: chamferSize * radius,
-      bevelThickness: chamferSize * height,
+      bevelSize: chamferSize * radius * 0.5,
+      bevelThickness: chamferSize * height * 0.5,
+      steps: 1,
       curveSegments: Math.max(sides * 2, 16) // Higher segments for smoother edges
     };
-
+    
+    // Create the extruded geometry
     const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     
-    // Apply texture if needed
-    if (texture > 0) {
-      const posAttr = geometry.getAttribute('position');
-      const vertexPoint = new THREE.Vector3();
+    // Add thread texture to the hole
+    const createThreadDetail = () => {
+      const positionAttr = geometry.getAttribute('position');
+      const vertex = new THREE.Vector3();
       
-      // Apply slight random displacement to surface vertices based on texture intensity
-      for (let i = 0; i < posAttr.count; i++) {
-        vertexPoint.fromBufferAttribute(posAttr, i);
-        const distFromCenter = Math.sqrt(vertexPoint.x * vertexPoint.x + vertexPoint.z * vertexPoint.z);
+      // Find inner hole vertices
+      for (let i = 0; i < positionAttr.count; i++) {
+        vertex.fromBufferAttribute(positionAttr, i);
+        const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
         
-        // Only apply texture to outer surface, not to hole or top/bottom faces
-        if (distFromCenter > holeRadius && Math.abs(vertexPoint.y) < height / 2 + chamferSize * height) {
-          // Scale texture based on parameter value (0-10)
-          const textureIntensity = texture * 0.005;
-          vertexPoint.x += (Math.random() - 0.5) * textureIntensity * radius;
-          vertexPoint.z += (Math.random() - 0.5) * textureIntensity * radius;
-          posAttr.setXYZ(i, vertexPoint.x, vertexPoint.y, vertexPoint.z);
+        // Check if vertex is part of the inner hole
+        if (distFromCenter <= holeRadius * 1.1 && distFromCenter >= holeRadius * 0.9) {
+          // Thread pattern based on y-position
+          const threadPitch = height / 6; // 6 threads along height
+          const threadDepth = holeRadius * 0.1; // 10% thread depth for visibility
+          const threadAngle = (vertex.y / threadPitch) * Math.PI * 2;
+          
+          // Calculate thread displacement
+          const threadOffset = Math.sin(threadAngle) * threadDepth;
+          
+          // Direction toward center
+          const dirX = -vertex.x;
+          const dirZ = -vertex.z;
+          const len = Math.sqrt(dirX * dirX + dirZ * dirZ);
+          
+          if (len > 0) {
+            // Move vertex inward/outward for thread pattern
+            const normX = dirX / len;
+            const normZ = dirZ / len;
+            
+            vertex.x += normX * threadOffset;
+            vertex.z += normZ * threadOffset;
+            
+            positionAttr.setXYZ(i, vertex.x, vertex.y, vertex.z);
+          }
+        }
+      }
+      
+      geometry.computeVertexNormals();
+    };
+    
+    // Add surface texture if enabled
+    if (parameters.texture && parameters.texture > 0) {
+      const textureIntensity = Math.min(parameters.texture * 0.003, 0.05);
+      const positionAttr = geometry.getAttribute('position');
+      const vertex = new THREE.Vector3();
+      
+      for (let i = 0; i < positionAttr.count; i++) {
+        vertex.fromBufferAttribute(positionAttr, i);
+        const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
+        
+        // Apply texture only to outer faces
+        if (distFromCenter > holeRadius * 1.2) {
+          // Add small random displacement for surface texture
+          vertex.x += (Math.random() - 0.5) * textureIntensity * radius;
+          vertex.y += (Math.random() - 0.5) * textureIntensity * height;
+          vertex.z += (Math.random() - 0.5) * textureIntensity * radius;
+          
+          positionAttr.setXYZ(i, vertex.x, vertex.y, vertex.z);
         }
       }
       
       geometry.computeVertexNormals();
     }
     
-    // Add thread texture inside the hole
-    const threadDetail = Math.floor(sides * 2);
-    // Define these variables properly
-    const positionAttribute = geometry.getAttribute('position');
-    const vertex = new THREE.Vector3();
+    // Add thread details to the hole
+    createThreadDetail();
     
-    // Find inner hole vertices
-    const innerPositions = [];
-    for (let i = 0; i < positionAttribute.count; i++) {
-      vertex.fromBufferAttribute(positionAttribute, i);
-      const distFromCenter = Math.sqrt(vertex.x * vertex.x + vertex.z * vertex.z);
-      
-      // Check if vertex is part of the inner hole
-      if (distFromCenter <= holeRadius * 1.1) {
-        innerPositions.push(i);
-      }
-    }
-    
-    // Add thread pattern to inner hole
-    for (let i = 0; i < innerPositions.length; i++) {
-      const index = innerPositions[i];
-      vertex.fromBufferAttribute(positionAttribute, index);
-      
-      // Simple thread pattern based on y-position
-      const threadDepth = holeRadius * 0.08;
-      const threadPitch = height / 8;
-      const threadOffset = Math.sin((vertex.y / threadPitch) * Math.PI * 2) * threadDepth;
-      
-      // Calculate direction to center
-      const dirX = -vertex.x;
-      const dirZ = -vertex.z;
-      const len = Math.sqrt(dirX * dirX + dirZ * dirZ);
-      
-      if (len > 0) {
-        // Move vertex inward/outward based on thread pattern
-        const normX = dirX / len;
-        const normZ = dirZ / len;
-        
-        vertex.x += normX * threadOffset;
-        vertex.z += normZ * threadOffset;
-        
-        positionAttribute.setXYZ(index, vertex.x, vertex.y, vertex.z);
-      }
-    }
-    
-    geometry.computeVertexNormals();
+    // Center the geometry
     geometry.center();
     
     return geometry;
   }, [parameters]);
+  
+  // Create material with realistic metallic properties
+  const nutMaterial = useMemo(() => {
+    return new THREE.MeshStandardMaterial({
+      color: materialColor,
+      metalness: 0.6,  // Matched to other components
+      roughness: 0.4,  // Matched to other components
+      flatShading: false
+    });
+  }, [materialColor]);
 
   // Add rotation animation
   useFrame((_, delta) => {
@@ -172,14 +170,13 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
 
   return (
     <group ref={groupRef}>
-      <mesh ref={meshRef} geometry={nutGeometry} castShadow receiveShadow>
-        <meshStandardMaterial 
-          color={materialColor} 
-          metalness={0.6}  // Matched to other components
-          roughness={0.4}  // Matched to other components
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+      <mesh 
+        ref={meshRef} 
+        geometry={nutGeometry} 
+        material={nutMaterial}
+        castShadow 
+        receiveShadow
+      />
     </group>
   );
 }
