@@ -50,10 +50,15 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     const chamferSize = parameters.chamferSize ?? 0.1; // Default chamfer
     const texture = parameters.texture ?? 0; // Default smooth
     
-    // Safe hole size - ensure it's not larger than ~90% of the radius (like in GearModel)
+    // Improved hole sizing - ensure hole is proportionally larger to make it look like an actual nut
+    // Minimum hole size should be at least 30% of radius for a realistic nut
     let holeRadius = parameters.holeRadius;
-    const maxHoleSize = radius * 0.9;
-    if (holeRadius > maxHoleSize) {
+    const minHoleSize = radius * 0.3; // Ensure minimum hole size
+    const maxHoleSize = radius * 0.85; // Maximum hole size (slightly reduced from 0.9)
+    
+    if (holeRadius < minHoleSize) {
+      holeRadius = minHoleSize;
+    } else if (holeRadius > maxHoleSize) {
       holeRadius = maxHoleSize;
     }
     
@@ -109,7 +114,7 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
     
     // Add thread texture inside the hole
     const threadDetail = Math.floor(sides * 2);
-    // Define these variables to fix the error
+    // Define these variables properly
     const positionAttribute = geometry.getAttribute('position');
     const vertex = new THREE.Vector3();
     

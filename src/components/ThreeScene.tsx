@@ -1,4 +1,3 @@
-
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, Grid } from '@react-three/drei';
@@ -102,7 +101,7 @@ const ThreeScene: React.FC<ThreeSceneProps> = ({
             parameters={{
               radius: getParameterValue('radius', 0.8),
               height: getParameterValue('height', 0.6),
-              holeRadius: getParameterValue('holeRadius', 0.4),
+              holeRadius: getParameterValue('holeRadius', 0.4), // This is correctly being passed
               chamferSize: getParameterValue('chamferSize', 0.1),
               sides: getParameterValue('sides', 6),
               texture: getParameterValue('texture', 0),
