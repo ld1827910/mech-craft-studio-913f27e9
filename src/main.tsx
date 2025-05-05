@@ -4,7 +4,7 @@ import App from './App.tsx';
 import './index.css';
 
 // Enhanced Cache busting mechanism
-const appVersion = '1.0.1'; // Incrementing version number
+const appVersion = '1.0.2'; // Incrementing version number
 const timestamp = new Date().getTime(); // Add timestamp for unique loading each time
 console.log(`MechCraft App v${appVersion} loaded (build: ${timestamp})`);
 
@@ -17,7 +17,7 @@ if (lastLoaded) {
   if (diff > dayInMs) {
     console.log('Cache expired, forcing refresh');
     localStorage.setItem('app_last_loaded', currentTime.toString());
-    window.location.reload(true);
+    window.location.reload();
   }
 } else {
   localStorage.setItem('app_last_loaded', currentTime.toString());

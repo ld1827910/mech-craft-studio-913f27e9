@@ -32,7 +32,7 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
 
   const nutGeometry = useMemo(() => {
     // Increase the size multiplier to make the nut bigger
-    const sizeMultiplier = 2.0;
+    const sizeMultiplier = 2.5;
     
     const { radius, height, holeRadius } = parameters;
     const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
