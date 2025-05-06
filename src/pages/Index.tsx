@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Configurator from '@/components/Configurator';
@@ -42,14 +41,11 @@ const Index: React.FC = () => {
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                 <a 
                   href="#configurator" 
-                  className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center"
+                  className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center shadow-lg border border-white"
                 >
                   Start Designing
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </a>
-                <Button variant="outline" className="border-white/40 text-white hover:bg-white/10">
-                  View Documentation
-                </Button>
               </div>
             </div>
           </div>
@@ -232,7 +228,7 @@ const Index: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <a 
                 href="#configurator" 
-                className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+                className="bg-white text-mechanical-blue px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors shadow-lg border border-white"
               >
                 Get Started Free
               </a>

@@ -109,15 +109,13 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
     // Create the extruded geometry
     const gearGeometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
     
-    // Center and orient vertically instead of horizontally
+    // Center the geometry
     gearGeometry.center();
-    
-    // No rotation needed - it now defaults to vertical orientation
     
     return gearGeometry;
   }, [parameters]);
 
-  // Rotation animation updated to rotate around the appropriate axis for vertical orientation
+  // Rotation animation
   useFrame((_, delta) => {
     if (autoRotate && meshRef.current) {
       meshRef.current.rotation.y += delta * 0.5;
@@ -130,7 +128,7 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       geometry={gearGeometry}
       castShadow
       receiveShadow
-      // Set initial rotation to make the gear stand vertically
+      // Set rotation to make the gear stand upright (facing front)
       rotation={[Math.PI / 2, 0, 0]}
     >
       <meshStandardMaterial 

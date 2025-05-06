@@ -38,19 +38,8 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
       const chamferSize = parameters.chamferSize ?? 0.1;
       
-      // Get holeRadius directly and apply constraints AFTER getting the exact value
-      const rawHoleRadius = parameters.holeRadius;
-      // Set reasonable hole size constraints for a realistic nut
-      const minHoleSize = radius * 0.3; // Minimum 30% of radius for realistic nut
-      const maxHoleSize = radius * 0.8; // Maximum 80% to maintain structure
-      
-      // Apply constraints after getting the raw value
-      let holeRadius = rawHoleRadius;
-      if (holeRadius < minHoleSize) {
-        holeRadius = minHoleSize;
-      } else if (holeRadius > maxHoleSize) {
-        holeRadius = maxHoleSize;
-      }
+      // Get holeRadius directly from parameters without initial constraints
+      let holeRadius = parameters.holeRadius;
       
       // Create the basic polygon shape based on sides
       const shape = new THREE.Shape();
@@ -62,7 +51,11 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       }
       shape.closePath();
       
-      // Create the center hole
+      // Create the center hole - apply safety constraints only if needed
+      if (holeRadius <= 0) holeRadius = radius * 0.3; // Minimum fallback
+      if (holeRadius >= radius * 0.9) holeRadius = radius * 0.8; // Maximum constraint
+      
+      // Create the hole path
       const holePath = new THREE.Path();
       holePath.absarc(0, 0, holeRadius, 0, Math.PI * 2, true);
       shape.holes.push(holePath);
