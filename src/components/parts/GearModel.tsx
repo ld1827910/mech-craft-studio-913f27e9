@@ -128,8 +128,8 @@ export default function GearModel({ parameters, material, autoRotate = false }: 
       geometry={gearGeometry}
       castShadow
       receiveShadow
-      // Set rotation to make the gear stand upright (facing front)
-      rotation={[Math.PI / 2, 0, 0]}
+      // Corrected rotation to make the gear stand vertically with teeth pointing up
+      rotation={[0, 0, 0]}
     >
       <meshStandardMaterial 
         color={materialColor} 
