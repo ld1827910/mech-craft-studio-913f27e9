@@ -38,11 +38,14 @@ export default function NutModel({ parameters, material, autoRotate = false }: N
       const sides = parameters.sides ?? 6; // Default to hex nut (6 sides)
       const chamferSize = parameters.chamferSize ?? 0.1;
       
+      // Get holeRadius directly and apply constraints AFTER getting the exact value
+      const rawHoleRadius = parameters.holeRadius;
       // Set reasonable hole size constraints for a realistic nut
-      let holeRadius = parameters.holeRadius;
-      const minHoleSize = radius * 0.35; // Minimum 35% of radius for realistic nut
-      const maxHoleSize = radius * 0.75; // Maximum 75% to maintain structure
+      const minHoleSize = radius * 0.3; // Minimum 30% of radius for realistic nut
+      const maxHoleSize = radius * 0.8; // Maximum 80% to maintain structure
       
+      // Apply constraints after getting the raw value
+      let holeRadius = rawHoleRadius;
       if (holeRadius < minHoleSize) {
         holeRadius = minHoleSize;
       } else if (holeRadius > maxHoleSize) {
