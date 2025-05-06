@@ -1,5 +1,5 @@
 
-import { create } from 'zustand';
+import { create as createStore } from 'zustand';
 
 type UnitSystem = 'metric' | 'imperial';
 
@@ -12,7 +12,7 @@ interface UnitsStore {
   convertToMetric: (value: number) => number;
 }
 
-export const useUnits = create<UnitsStore>((set, get) => ({
+export const useUnits = createStore<UnitsStore>((set, get) => ({
   unitSystem: 'metric',
   
   toggleUnitSystem: () => set(state => ({ 
