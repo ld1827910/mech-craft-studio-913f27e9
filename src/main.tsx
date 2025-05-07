@@ -4,7 +4,7 @@ import App from './App.tsx';
 import './index.css';
 
 // Enhanced Cache busting mechanism - updated version
-const appVersion = '1.0.3'; // Incrementing version number
+const appVersion = '1.0.4'; // Incrementing version number
 const timestamp = new Date().getTime(); // Add timestamp for unique loading each time
 console.log(`MechCraft App v${appVersion} loaded (build: ${timestamp})`);
 

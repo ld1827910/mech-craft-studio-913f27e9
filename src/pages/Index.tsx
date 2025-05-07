@@ -1,19 +1,12 @@
+
 import React from 'react';
 import Header from '@/components/Header';
 import Configurator from '@/components/Configurator';
 import Footer from '@/components/Footer';
 import { 
-  Code, 
-  Layers, 
-  Package,
-  Settings,
-  ArrowRight,
-  Users,
-  LineChart,
-  Shield
+  ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 
 const Index: React.FC = () => {
   return (
@@ -59,164 +52,6 @@ const Index: React.FC = () => {
         
         <div id="configurator" className="scroll-mt-16 pt-8">
           <Configurator />
-        </div>
-        
-        <div className="py-20 bg-white dark:bg-gray-800">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-14">
-              <h2 className="text-3xl font-bold mb-4">Advanced Features</h2>
-              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Our professional-grade platform offers a suite of powerful tools to handle even the most complex engineering challenges.</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <Card className="border border-gray-100 dark:border-gray-700 shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 bg-mechanical-blue/10 dark:bg-mechanical-blue/20 text-mechanical-blue rounded-lg flex items-center justify-center mb-5">
-                    <Code className="h-7 w-7" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">API Integration</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Connect to manufacturing APIs to get real-time quotes and production timelines from trusted suppliers.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border border-gray-100 dark:border-gray-700 shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 bg-mechanical-blue/10 dark:bg-mechanical-blue/20 text-mechanical-blue rounded-lg flex items-center justify-center mb-5">
-                    <Layers className="h-7 w-7" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Assembly Builder</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Combine multiple components into complete mechanical assemblies with constraint-based positioning.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border border-gray-100 dark:border-gray-700 shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 bg-mechanical-blue/10 dark:bg-mechanical-blue/20 text-mechanical-blue rounded-lg flex items-center justify-center mb-5">
-                    <Settings className="h-7 w-7" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Simulation Tools</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Run stress tests and motion simulations on your designs before manufacturing to verify performance.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card className="border border-gray-100 dark:border-gray-700 shadow-md transition-transform hover:scale-[1.02] hover:shadow-lg">
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 bg-mechanical-blue/10 dark:bg-mechanical-blue/20 text-mechanical-blue rounded-lg flex items-center justify-center mb-5">
-                    <Package className="h-7 w-7" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">Export Options</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Export designs in multiple formats compatible with popular CAD and CAM systems for seamless workflow.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-        
-        <div className="py-20 bg-gray-50 dark:bg-gray-900">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center gap-12">
-              <div className="w-full md:w-1/2 order-2 md:order-1">
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 relative">
-                  <div className="absolute -top-4 -left-4 bg-mechanical-blue text-white text-xs px-3 py-1 rounded-md">
-                    Enterprise Ready
-                  </div>
-                  
-                  <h2 className="text-2xl font-bold mb-6">Why Engineering Teams Trust Us</h2>
-                  
-                  <div className="space-y-6">
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-mechanical-blue/10 dark:bg-mechanical-blue/20 flex items-center justify-center">
-                          <Shield className="h-5 w-5 text-mechanical-blue" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">ISO/ANSI Standards Compliance</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          All components meet or exceed international engineering standards for reliability and safety.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-mechanical-blue/10 dark:bg-mechanical-blue/20 flex items-center justify-center">
-                          <Users className="h-5 w-5 text-mechanical-blue" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Team Collaboration</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Real-time collaborative editing and version control for seamless team coordination.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-mechanical-blue/10 dark:bg-mechanical-blue/20 flex items-center justify-center">
-                          <LineChart className="h-5 w-5 text-mechanical-blue" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="font-semibold mb-1">Performance Analytics</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Advanced simulations provide critical performance data before manufacturing.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8 flex flex-col sm:flex-row gap-3">
-                    <Button className="bg-mechanical-blue hover:bg-mechanical-darkblue">
-                      Request a Demo
-                    </Button>
-                    <Button variant="outline">
-                      View Case Studies
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="w-full md:w-1/2 order-1 md:order-2">
-                <h2 className="text-3xl font-bold mb-4">Enterprise Solutions</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Serving aerospace, automotive, and medical device industries with specialized engineering tools built for demanding applications.
-                </p>
-                
-                <div className="relative">
-                  <div className="aspect-video bg-mechanical-darkblue rounded-xl flex items-center justify-center overflow-hidden shadow-xl">
-                    <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?q=80&w=2070')] opacity-20 bg-cover bg-center"></div>
-                    <div className="relative z-10 p-8 text-center text-white">
-                      <h3 className="text-2xl font-bold mb-2">Watch Demo</h3>
-                      <p className="mb-6 opacity-90">See how our platform enables teams to design with precision</p>
-                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto cursor-pointer hover:bg-white/30 transition-colors">
-                        <div className="w-0 h-0 border-y-8 border-y-transparent border-l-12 border-l-white ml-1"></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 max-w-xs hidden md:block">
-                    <div className="flex items-start gap-3">
-                      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Customer" className="w-10 h-10 rounded-full" />
-                      <div>
-                        <p className="text-sm italic">"The configurator has revolutionized our prototyping process, reducing time-to-market by 45%."</p>
-                        <p className="text-xs text-mechanical-blue mt-2 font-medium">— Sarah Chen, Lead Engineer at AeroTech</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div className="bg-mechanical-blue py-16 text-white relative overflow-hidden">

@@ -273,44 +273,6 @@ const Configurator: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <div className="mt-20 fade-in">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">Featured Projects</h2>
-          <Button variant="outline" size="sm">View All Projects</Button>
-        </div>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((item) => (
-            <Card key={item} className="overflow-hidden shadow-md hover:shadow-lg transition-all">
-              <div className="aspect-video bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-                <Cog className="h-10 w-10 text-mechanical-blue/30" />
-              </div>
-              <CardContent className="p-5">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-lg">Precision Gear Assembly {item}</h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Created 3 days ago</p>
-                  </div>
-                  <Badge variant="secondary" className="text-xs">Featured</Badge>
-                </div>
-                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
-                  Custom gear train designed for robotic actuation with high torque transmission.
-                </p>
-                <div className="flex justify-between items-center">
-                  <div className="flex -space-x-2">
-                    <div className="w-7 h-7 rounded-full bg-mechanical-blue flex items-center justify-center text-xs text-white">JD</div>
-                    <div className="w-7 h-7 rounded-full bg-mechanical-darkblue flex items-center justify-center text-xs text-white">TK</div>
-                  </div>
-                  <Button variant="ghost" size="sm" className="text-mechanical-blue hover:text-mechanical-darkblue px-0">
-                    View Details →
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };
